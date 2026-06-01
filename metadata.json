@@ -1,0 +1,6 @@
+{
+  "name": "GTA-Tech",
+  "description": "Website profissional e otimizado da GTA-Tech, assistência técnica especializada em Cabinda, Angola. Design premium inspirado no Vinno Startup, modo escuro configurável e transições fluidas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
