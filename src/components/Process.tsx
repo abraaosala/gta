@@ -4,7 +4,7 @@
  */
 
 import { motion } from 'motion/react';
-import { PROCESS_STEPS } from '../data.ts';
+import { useData } from '../contexts/DataContext.tsx';
 import { Check, ClipboardList, Settings, Sparkles, Truck } from 'lucide-react';
 
 const StepIcons = [
@@ -15,6 +15,7 @@ const StepIcons = [
 ];
 
 export default function Process() {
+  const { process } = useData();
   return (
     <section id="processo" className="py-20 bg-slate-50 tech-grid-bg transition-all">
       <motion.div
@@ -50,7 +51,7 @@ export default function Process() {
             variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10"
           >
-            {PROCESS_STEPS.map((item, index) => {
+            {process.map((item, index) => {
               return (
                 <motion.div
                   key={item.step}

@@ -6,7 +6,7 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Smartphone, Laptop, Plug, BatteryCharging, Search, Sparkles, MessageCircle, Info, X } from 'lucide-react';
-import { PRODUCTS_LIST } from '../data.ts';
+import { useData } from '../contexts/DataContext.tsx';
 import { ProductItem } from '../types.ts';
 
 const CategoryIconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
@@ -16,13 +16,14 @@ const CategoryIconMap: { [key: string]: React.ComponentType<{ className?: string
 };
 
 export default function SalesStore() {
+  const { products } = useData();
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedProduct, setSelectedProduct] = useState<ProductItem | null>(null);
 
   // Filter products based on category and query searching name/specification lists
   const filteredProducts = useMemo(() => {
-    return PRODUCTS_LIST.filter((product) => {
+    return products.filter((product) => {
       const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
       const matchesSearch =
         product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||

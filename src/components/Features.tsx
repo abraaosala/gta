@@ -4,47 +4,32 @@
  */
 
 import { motion } from 'motion/react';
-import { Timer, HeartHandshake, ShieldCheck, MapPin, Award, CheckCircle } from 'lucide-react';
+import {
+  Timer, HeartHandshake, ShieldCheck, MapPin, Award, CheckCircle,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { useData } from '../contexts/DataContext.tsx';
+
+const iconMap: Record<string, LucideIcon> = {
+  Timer, HeartHandshake, ShieldCheck, MapPin, Award, CheckCircle,
+};
+
+const colorClasses = [
+  'text-brand-blue',
+  'text-brand-cyan',
+  'text-brand-amber',
+  'text-indigo-500',
+  'text-emerald-500',
+  'text-red-500',
+];
+
+function FeatureIcon({ name, index }: { name: string; index: number }) {
+  const IconComponent = iconMap[name] || Timer;
+  return <IconComponent className={`w-8 h-8 ${colorClasses[index % colorClasses.length]}`} />;
+}
 
 export default function Features() {
-  const listFeatures = [
-    {
-      icon: <Timer className="w-8 h-8 text-brand-blue" />,
-      title: 'Reparações Expresso',
-      description: 'Mais de 85% das reparações de ecrã ou substituições de baterias são efetuadas e concluídas em menos de 1 hora.',
-      badge: 'Velocidade Máxima',
-    },
-    {
-      icon: <HeartHandshake className="w-8 h-8 text-brand-cyan" />,
-      title: 'Diagnóstico 100% Gratuito',
-      description: 'Na GTA-Tech avaliamos o seu telemóvel ou computador fisicamente sem cobrar nada. Só avança se aprovar o orçamento.',
-      badge: 'Sem Compromisso',
-    },
-    {
-      icon: <ShieldCheck className="w-8 h-8 text-brand-amber" />,
-      title: 'Garantia de 90 Dias',
-      description: 'Todas as nossas intervenções e substituições de componentes vêm com uma garantia de 3 meses registada por escrito.',
-      badge: 'Tranquilidade Total',
-    },
-    {
-      icon: <Award className="w-8 h-8 text-indigo-500" />,
-      title: 'Peças de Alta Gama',
-      description: 'Damos primazia a componentes de teor original com calibração de TrueTone e taxas de refresco idênticas de fábrica.',
-      badge: 'Qualidade Premium',
-    },
-    {
-      icon: <CheckCircle className="w-8 h-8 text-emerald-500" />,
-      title: 'Laboratório Antiestático',
-      description: 'Dispomos de equipamentos profissionais calibrados contra descargas eletrostáticas, garantindo integridade total da placa.',
-      badge: 'Segurança Total',
-    },
-    {
-      icon: <MapPin className="w-8 h-8 text-red-500" />,
-      title: 'Centralizados em Cabinda',
-      description: 'Estamos localizados numa área nobre com segurança e fácil estacionamento para sua total comodidade.',
-      badge: 'Estacionamento Fácil',
-    },
-  ];
+  const { features } = useData();
 
   return (
     <section id="features" className="py-20 bg-slate-100/50 relative transition-all">
@@ -77,16 +62,16 @@ export default function Features() {
           variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
         >
-          {listFeatures.map((item, idx) => (
+          {features.map((item, idx) => (
             <motion.div
-              key={idx}
+              key={item.id}
               variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
               className="glass-card p-6 sm:p-8 rounded-3xl hover:shadow-xl hover:border-brand-blue/20 cursor-default group shrink-0"
             >
               {/* Top Row with Icon & Badge */}
               <div className="flex items-start justify-between mb-6">
                 <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 relative group-hover:scale-110 transition-all duration-350">
-                  {item.icon}
+                  <FeatureIcon name={item.icon} index={idx} />
                 </div>
                 <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md">
                   {item.badge}

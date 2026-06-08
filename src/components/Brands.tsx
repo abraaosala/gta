@@ -4,10 +4,11 @@
  */
 
 import { motion } from 'motion/react';
-import { BRANDS_LIST } from '../data.ts';
+import { useData } from '../contexts/DataContext.tsx';
 import { Apple, Smartphone, Laptop, Check } from 'lucide-react';
 
 export default function Brands() {
+  const { brands } = useData();
   return (
     <section className="py-12 bg-white border-y border-slate-150/40 transition-all">
       <motion.div
@@ -33,7 +34,7 @@ export default function Brands() {
           variants={{ visible: { transition: { staggerChildren: 0.1 } } }}
           className="flex flex-wrap items-center justify-center gap-4 sm:gap-6"
         >
-          {BRANDS_LIST.map((brand) => {
+          {brands.map((brand) => {
             return (
               <motion.div
                 key={brand.id}

@@ -6,12 +6,12 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion } from 'motion/react';
 import { ShieldCheck, Award, MessageCircle, ArrowRight } from 'lucide-react';
-import { BUSINESS_INFO } from '../data.ts';
+import { useData } from '../contexts/DataContext.tsx';
 
 interface HeroSlide {
   image: string;
   tagline: string;
-  headline: JSX.Element;
+  headline: React.ReactNode;
   description: string;
 }
 
@@ -49,9 +49,10 @@ const HERO_SLIDES: HeroSlide[] = [
 ];
 
 export default function Hero() {
+  const { businessInfo } = useData();
   const [currentImage, setCurrentImage] = useState(0);
   const [prevImage, setPrevImage] = useState<number | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -235,7 +236,7 @@ export default function Hero() {
               {/* Whatsapp Direct Callout */}
               <a
                 id="hero-whatsapp-btn"
-                href={`https://wa.me/${BUSINESS_INFO.whatsapp}?text=Olá,%20gostaria%20de%20solicitar%20uma%20assistência%20técnica%20para%20o%20meu%20dispositivo.`}
+                href={`https://wa.me/${businessInfo.whatsapp}?text=Olá,%20gostaria%20de%20solicitar%20uma%20assistência%20técnica%20para%20o%20meu%20dispositivo.`}
                 target="_blank"
                 referrerPolicy="no-referrer"
                 rel="noopener noreferrer"

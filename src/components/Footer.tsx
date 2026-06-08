@@ -4,10 +4,11 @@
  */
 
 import { motion } from 'motion/react';
-import { BUSINESS_INFO } from '../data.ts';
-import { Smartphone, Shield, HelpCircle, Phone, Clock, Wrench } from 'lucide-react';
+import { useData } from '../contexts/DataContext.tsx';
+import { Smartphone, Shield, HelpCircle, Phone, Clock, Wrench, Instagram, Facebook, Music2 } from 'lucide-react';
 
 export default function Footer() {
+  const { businessInfo, settings } = useData();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -24,11 +25,15 @@ export default function Footer() {
           {/* Col 1: About Tech (Col 5) */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-blue to-cyan-400 flex items-center justify-center text-white">
-                <Wrench className="w-4 h-4" />
-              </div>
+              {businessInfo.logoUrl ? (
+                <img key={businessInfo.logoUrl} src={`${businessInfo.logoUrl}?t=${Date.now()}`} alt={businessInfo.name} className="w-8 h-8 rounded-lg object-cover" />
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-blue to-cyan-400 flex items-center justify-center text-white">
+                  <Wrench className="w-4 h-4" />
+                </div>
+              )}
               <span className="text-lg font-bold font-display tracking-tight text-white">
-                GTA<span className="text-brand-cyan">-Tech</span>
+                {businessInfo.name}
               </span>
             </div>
             <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
@@ -95,18 +100,39 @@ export default function Footer() {
             <div className="space-y-2 text-xs text-slate-400">
               <div className="flex items-center space-x-2">
                 <Phone className="w-3.5 h-3.5 text-brand-cyan" />
-                <span>{BUSINESS_INFO.phone}</span>
+                <span>{businessInfo.phone}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Clock className="w-3.5 h-3.5 text-brand-cyan" />
-                <span className="leading-tight">{BUSINESS_INFO.hours}</span>
+                <span className="leading-tight">{businessInfo.hours}</span>
               </div>
               <div className="text-[10px] text-slate-500 leading-snug">
-                {BUSINESS_INFO.city}
+                {businessInfo.city}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Social Links */}
+        {(settings.instagram_url || settings.facebook_url || settings.tiktok_url) && (
+          <div className="flex justify-center gap-4 pt-6">
+            {settings.instagram_url && (
+              <a href={settings.instagram_url} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-pink-400 transition-colors" title="Instagram">
+                <Instagram className="w-5 h-5" />
+              </a>
+            )}
+            {settings.facebook_url && (
+              <a href={settings.facebook_url} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-blue-400 transition-colors" title="Facebook">
+                <Facebook className="w-5 h-5" />
+              </a>
+            )}
+            {settings.tiktok_url && (
+              <a href={settings.tiktok_url} target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-cyan-400 transition-colors" title="TikTok">
+                <Music2 className="w-5 h-5" />
+              </a>
+            )}
+          </div>
+        )}
 
         {/* Bottom Rights Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-left text-[11px] text-slate-500 font-mono gap-4">

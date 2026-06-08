@@ -6,7 +6,7 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Smartphone, BatteryCharging, Cpu, Plug, Laptop, CloudLightning, ArrowRight, Check } from 'lucide-react';
-import { SERVICES_LIST } from '../data.ts';
+import { useData } from '../contexts/DataContext.tsx';
 
 // Dynamic Lucide selection mapping
 const IconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
@@ -23,6 +23,7 @@ interface ServicesProps {
 }
 
 export default function Services({ onSelectService }: ServicesProps) {
+  const { services } = useData();
   return (
     <section id="servicos" className="py-20 bg-white transition-all">
       <motion.div
@@ -58,7 +59,7 @@ export default function Services({ onSelectService }: ServicesProps) {
           variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
         >
-          {SERVICES_LIST.map((service, index) => {
+          {services.map((service, index) => {
             const IconComponent = IconMap[service.iconName] || Smartphone;
             return (
               <motion.div

@@ -5,10 +5,11 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { FAQS_LIST } from '../data.ts';
+import { useData } from '../contexts/DataContext.tsx';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
 
 export default function FAQ() {
+  const { faqs } = useData();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggleAccordion = (index: number) => {
@@ -46,7 +47,7 @@ export default function FAQ() {
           variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
           className="space-y-4"
         >
-          {FAQS_LIST.map((faq, index) => {
+          {faqs.map((faq, index) => {
             const isOpen = openIndex === index;
             return (
               <motion.div

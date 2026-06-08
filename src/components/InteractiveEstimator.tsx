@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ESTIMATOR_DEVICES, BUSINESS_INFO } from '../data.ts';
+import { useData } from '../contexts/DataContext.tsx';
 import { Calculator, MessageCircle, CalendarCheck, HelpCircle, Check, Sparkles, Smartphone, Laptop, Tablet, AlertCircle } from 'lucide-react';
 
 interface InteractiveEstimatorProps {
@@ -14,6 +14,7 @@ interface InteractiveEstimatorProps {
 }
 
 export default function InteractiveEstimator({ preselectedServiceId, clearPreselection }: InteractiveEstimatorProps) {
+  const { estimator, businessInfo } = useData();
   // Config state
   const [selectedDeviceIndex, setSelectedDeviceIndex] = useState(0);
   const [selectedBrand, setSelectedBrand] = useState('');
@@ -68,17 +69,17 @@ export default function InteractiveEstimator({ preselectedServiceId, clearPresel
     clearPreselection();
   }, [preselectedServiceId]);
 
-  const currentDevice = ESTIMATOR_DEVICES[selectedDeviceIndex] || ESTIMATOR_DEVICES[0];
+  const currentDevice = estimator[selectedDeviceIndex] || estimator[0];
 
-  // Set default brand if selected device changed
   useEffect(() => {
-    if (currentDevice && currentDevice.brands && currentDevice.brands.length > 0) {
+    if (currentDevice?.brands?.length) {
       setSelectedBrand(currentDevice.brands[0]);
     }
     setSelectedIssueIndex(0);
   }, [selectedDeviceIndex]);
 
-  const currentIssue = currentDevice.issues[selectedIssueIndex] || currentDevice.issues[0];
+  const issues = currentDevice?.issues || [];
+  const currentIssue = issues[selectedIssueIndex] || issues[0] || { basePrice: 0, estimatedTime: '', label: 'Selecione um problema', id: '' };
 
   const formatCurrency = (val: number) => {
     return new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA', minimumFractionDigits: 0 }).format(val).replace('AOA', 'Kz');
@@ -100,7 +101,7 @@ export default function InteractiveEstimator({ preselectedServiceId, clearPresel
 Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda?`;
 
     const encodedMessage = encodeURIComponent(message);
-    const whatsappLink = `https://wa.me/${BUSINESS_INFO.whatsapp}?text=${encodedMessage}`;
+    const whatsappLink = `https://wa.me/${businessInfo.whatsapp}?text=${encodedMessage}`;
     window.open(whatsappLink, '_blank', 'noreferrer policy=no-referrer');
   };
 
@@ -158,7 +159,7 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
 
               {/* Step 1: Device Tabs */}
               <div className="grid grid-cols-3 gap-3 mb-6">
-                {ESTIMATOR_DEVICES.map((device, idx) => {
+                {estimator.map((device, idx) => {
                   const isActive = selectedDeviceIndex === idx;
                   const icons = [
                     <Smartphone className="w-4 h-4 mr-2" key="ph" />,

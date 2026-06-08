@@ -4,10 +4,11 @@
  */
 
 import { motion } from 'motion/react';
-import { TESTIMONIALS_LIST } from '../data.ts';
+import { useData } from '../contexts/DataContext.tsx';
 import { Star, Quote, CheckCircle2 } from 'lucide-react';
 
 export default function Testimonials() {
+  const { testimonials } = useData();
   return (
     <section id="depoimentos" className="py-20 bg-slate-100/30 tech-grid-bg transition-all">
       <motion.div
@@ -39,7 +40,7 @@ export default function Testimonials() {
           variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
           className="grid grid-cols-1 md:grid-cols-3 gap-8"
         >
-          {TESTIMONIALS_LIST.map((t, idx) => {
+          {testimonials.map((t, idx) => {
             return (
               <motion.div
                 key={t.id}

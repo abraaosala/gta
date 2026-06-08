@@ -5,30 +5,43 @@
 
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { BUSINESS_INFO } from '../data.ts';
-import { MapPin, Phone, Mail, Clock, ShieldCheck, MailCheck, Send, Check, AlertCircle } from 'lucide-react';
+import { useData } from '../contexts/DataContext.tsx';
+import { MapPin, Phone, Mail, Clock, ShieldCheck, Send } from 'lucide-react';
+import { submitContact } from '../lib/api.ts';
+import { useToast } from '../lib/toast.tsx';
 
 export default function AboutContact() {
+  const toast = useToast();
+  const { businessInfo } = useData();
   // Contact Form states
   const [nameInput, setNameInput] = useState('');
   const [phoneInput, setPhoneInput] = useState('');
   const [deviceInput, setDeviceInput] = useState('');
   const [messageInput, setMessageInput] = useState('');
-  const [success, setSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nameInput || !phoneInput) return;
+    setSubmitting(true);
 
-    // Simulate sending, show success banner
-    setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
+    try {
+      await submitContact({
+        name: nameInput,
+        email: '',
+        phone: phoneInput,
+        message: `${deviceInput ? 'Dispositivo: ' + deviceInput + '\n' : ''}${messageInput}`,
+      });
+      toast.success('Mensagem enviada com sucesso! Entraremos em contacto consigo em breve.');
       setNameInput('');
       setPhoneInput('');
       setDeviceInput('');
       setMessageInput('');
-    }, 5000);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Erro ao enviar mensagem');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -92,7 +105,7 @@ export default function AboutContact() {
                 <div>
                   <span className="block text-[10px] text-slate-400 font-mono uppercase">Localização</span>
                   <span className="font-semibold text-slate-800 leading-tight">
-                    {BUSINESS_INFO.address}
+                    {businessInfo.address}
                   </span>
                 </div>
               </div>
@@ -101,8 +114,8 @@ export default function AboutContact() {
                 <Phone className="w-5 h-5 text-brand-blue shrink-0" />
                 <div>
                   <span className="block text-[10px] text-slate-400 font-mono uppercase">Ligar Direto</span>
-                  <a href={`tel:${BUSINESS_INFO.phone}`} className="font-bold hover:underline text-slate-850 ">
-                    {BUSINESS_INFO.phone}
+                    <a href={`tel:${businessInfo.phone}`} className="font-bold hover:underline text-slate-850 ">
+                    {businessInfo.phone}
                   </a>
                 </div>
               </div>
@@ -111,7 +124,7 @@ export default function AboutContact() {
                 <Mail className="w-5 h-5 text-brand-blue shrink-0" />
                 <div>
                   <span className="block text-[10px] text-slate-400 font-mono uppercase">Correio Eletrónico</span>
-                  <span className="font-semibold text-slate-800 ">{BUSINESS_INFO.email}</span>
+                  <span className="font-semibold text-slate-800 ">{businessInfo.email}</span>
                 </div>
               </div>
 
@@ -119,7 +132,7 @@ export default function AboutContact() {
                 <Clock className="w-5 h-5 text-brand-blue shrink-0" />
                 <div>
                   <span className="block text-[10px] text-slate-400 font-mono uppercase">Horário de Funcionamento</span>
-                  <span className="font-semibold text-slate-800 ">{BUSINESS_INFO.hours}</span>
+                  <span className="font-semibold text-slate-800 ">{businessInfo.hours}</span>
                 </div>
               </div>
             </div>
@@ -140,20 +153,6 @@ export default function AboutContact() {
               <p className="text-sm text-slate-400 mb-8 font-sans">
                 Se tem uma dúvida específica ou pretende agendar uma intervenção urgente, introduza os dados abaixo. Nós responderemos no próprio dia.
               </p>
-
-              {/* Success Alert */}
-              {success && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 text-xs flex items-start"
-                >
-                  <Check className="w-5 h-5 mr-2.5 shrink-0 mt-0.5" />
-                  <div>
-                    <strong>Mensagem enviada com sucesso!</strong> Obrigado pelo seu contacto. Um dos nossos engenheiros térmicos e de microeletrónica irá contatar o seu telemóvel nas próximas horas.
-                  </div>
-                </motion.div>
-              )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -214,10 +213,11 @@ export default function AboutContact() {
 
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center py-4 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 hover:shadow-lg transition-all duration-300 cursor-pointer"
+                  disabled={submitting}
+                  className="w-full flex items-center justify-center py-4 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 hover:shadow-lg transition-all duration-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Send className="w-4 h-4 mr-2" />
-                  Enviar Mensagem Urgente
+                  {submitting ? 'A enviar...' : 'Enviar Mensagem Urgente'}
                 </button>
               </form>
 

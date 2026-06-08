@@ -5,10 +5,13 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useNavigate } from '@tanstack/react-router';
 import { Menu, X, Wrench } from 'lucide-react';
-import { BUSINESS_INFO } from '../data.ts';
+import { useData } from '../contexts/DataContext.tsx';
 
 export default function Header() {
+  const navigate = useNavigate();
+  const { businessInfo } = useData();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -50,23 +53,33 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a
+          <div
             id="logo-link"
-            href="#inicio"
-            className="flex items-center space-x-3 group focus:outline-none"
+            onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+            onDoubleClick={() => navigate({to: '/login'})}
+            className="flex items-center space-x-3 group focus:outline-none cursor-pointer"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center font-bold text-lg text-white shadow-md shadow-blue-500/15 transition-transform group-hover:scale-105">
-              <Wrench className="w-5 h-5" id="logo-icon" />
-            </div>
+            {businessInfo.logoUrl ? (
+              <img
+                key={businessInfo.logoUrl}
+                src={`${businessInfo.logoUrl}?t=${Date.now()}`}
+                alt={businessInfo.name}
+                className="w-10 h-10 rounded-lg object-cover shadow-md transition-transform group-hover:scale-105"
+              />
+            ) : (
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-lg flex items-center justify-center font-bold text-lg text-white shadow-md shadow-blue-500/15 transition-transform group-hover:scale-105">
+                <Wrench className="w-5 h-5" id="logo-icon" />
+              </div>
+            )}
             <div className="flex flex-col">
               <span className="text-xl font-bold tracking-tight uppercase text-slate-900 font-display">
-                GTA<span className="text-blue-500">Tech</span>
+                {businessInfo.name}
               </span>
               <span className="text-[9px] font-mono tracking-[0.15em] text-slate-500 uppercase font-bold">
                 Cabinda · Angola
               </span>
             </div>
-          </a>
+          </div>
 
           {/* Desktop Navigation */}
           <nav id="desktop-nav" className="hidden md:flex items-center space-x-1 lg:space-x-2">
@@ -137,7 +150,7 @@ export default function Header() {
                   Diagnóstico Grátis em Cabinda
                 </a>
                 <div className="mt-3 text-center text-xs text-slate-400 font-mono">
-                  Tel: {BUSINESS_INFO.phone}
+                  Tel: {businessInfo.phone}
                 </div>
               </div>
             </div>
