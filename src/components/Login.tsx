@@ -10,7 +10,7 @@ import {login} from '../lib/auth.ts';
 import {useData} from '../contexts/DataContext.tsx';
 
 export default function Login() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -22,7 +22,7 @@ export default function Login() {
     setError(null);
     setSubmitting(true);
 
-    const result = await login(username, password);
+    const result = await login(email, password);
     setSubmitting(false);
 
     if (result.ok) {
@@ -105,14 +105,14 @@ export default function Login() {
 
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Utilizador
+                Email
               </label>
               <input
-                type="text"
+                type="email"
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="admin"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="admin@gtatech.ao"
                 className="w-full bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:outline-none transition-all"
                 autoFocus
               />

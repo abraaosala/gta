@@ -5,9 +5,9 @@
 
 import {loginAPI, storeToken, clearToken, getStoredToken, logoutAPI} from './api.ts';
 
-export async function login(username: string, password: string): Promise<{ ok: boolean; error?: string }> {
+export async function login(email: string, password: string): Promise<{ ok: boolean; error?: string }> {
   try {
-    const result = await loginAPI(username, password);
+    const result = await loginAPI(email, password);
     storeToken(result.accessToken);
     return { ok: true };
   } catch (e) {

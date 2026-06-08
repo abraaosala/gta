@@ -17,7 +17,7 @@ import type {
 } from '../types.ts';
 import type { BusinessInfo } from './data-store.ts';
 
-const BASE =  process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000/api';
+const BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
 const API_ORIGIN = BASE.replace(/\/api$/, '');
 
@@ -79,11 +79,11 @@ function mapLoginResponse(data: Record<string, unknown>): LoginResponse {
   };
 }
 
-export async function loginAPI(username: string, password: string): Promise<LoginResponse> {
+export async function loginAPI(email: string, password: string): Promise<LoginResponse> {
   const res = await fetch(`${BASE}/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ email, password }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({})) as Record<string, unknown>;
