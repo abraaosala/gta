@@ -1,13 +1,20 @@
 import {StrictMode} from 'react';
 import {createRoot} from 'react-dom/client';
 import {HelmetProvider} from 'react-helmet-async';
-import App from './App.tsx';
+import {RouterProvider} from '@tanstack/react-router';
+import {router} from './router.ts';
+import {DataProvider} from './contexts/DataContext.tsx';
+import {ToastProvider} from './lib/toast.tsx';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
-      <App />
+      <DataProvider>
+        <ToastProvider>
+          <RouterProvider router={router} />
+        </ToastProvider>
+      </DataProvider>
     </HelmetProvider>
   </StrictMode>,
 );
