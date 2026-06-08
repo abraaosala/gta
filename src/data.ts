@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ServiceItem, BrandItem, SupportStep, TestimonialItem, FAQItem, EstimatorDevice, ProductItem } from './types.ts';
+import { ServiceItem, BrandItem, SupportStep, TestimonialItem, FAQItem, EstimatorDevice, ProductItem, FeatureItem, TeamMember, GalleryItem } from './types.ts';
 
 export const BUSINESS_INFO = {
   name: 'GTA-Tech',
@@ -15,6 +15,8 @@ export const BUSINESS_INFO = {
   address: 'Rua do Comércio, Edifício Mandarim, R/C - Cabinda, Angola',
   hours: 'Segunda a Sábado: 08:00 - 18:00',
   city: 'Cabinda, Angola',
+  logoUrl: '',
+  faviconUrl: '',
 };
 
 export const SERVICES_LIST: ServiceItem[] = [
@@ -278,5 +280,207 @@ export const PRODUCTS_LIST: ProductItem[] = [
     condition: 'Novo',
     inStock: true,
     specs: ['Conectividade Bluetooth 5.3', 'Autonomia de Bateria até 24h', 'Controlo por Toques Inteligente'],
+  },
+  {
+    id: 'p7',
+    name: 'iPad 9ª Geração 64GB Wi-Fi',
+    category: 'tablets',
+    price: 210000,
+    originalPrice: 240000,
+    iconName: 'Tablet',
+    imageUrl: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600&auto=format&fit=crop&q=80',
+    description: 'Tablet versátil para estudo e trabalho. Ecrã Retina 10.2" com True Tone, processador A13 Bionic e suporte para Apple Pencil.',
+    condition: 'Recondicionado Grade A',
+    inStock: true,
+    specs: ['Ecrã Retina 10.2" com True Tone', 'Processador A13 Bionic', '64GB de Armazenamento', 'Touch ID & Câmara 8MP'],
+  },
+  {
+    id: 'p8',
+    name: 'Samsung Galaxy Tab A8 64GB',
+    category: 'tablets',
+    price: 135000,
+    iconName: 'Tablet',
+    imageUrl: 'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=600&auto=format&fit=crop&q=80',
+    description: 'Tablet ideal para entretenimento e produtividade. Ecrã imersivo de 10.5" com altifalantes quadruplos AKG.',
+    condition: 'Novo',
+    inStock: true,
+    specs: ['Ecrã TFT 10.5"', 'Processador Unisoc T618', '64GB Expansível até 1TB', 'Altifalantes AKG com Dolby Atmos'],
+  },
+  {
+    id: 'p9',
+    name: 'Apple Watch SE 2ª Geração 40mm',
+    category: 'wearables',
+    price: 135000,
+    originalPrice: 155000,
+    iconName: 'Watch',
+    imageUrl: 'https://images.unsplash.com/photo-1546868871-af0de0ae72d6?w=600&auto=format&fit=crop&q=80',
+    description: 'Smartwatch completo com monitorização de saúde avançada, GPS integrado e notificações inteligentes.',
+    condition: 'Recondicionado Grade A+',
+    inStock: true,
+    specs: ['Monitorização de Sono e Oxímetro', 'GPS + GLONASS Integrado', 'Resistente à Água 50m', 'Sistema watchOS 10'],
+  },
+  {
+    id: 'p10',
+    name: 'Cabo USB-C para Lightning 1m Original',
+    category: 'accessories',
+    price: 5500,
+    iconName: 'Plug',
+    imageUrl: 'https://images.unsplash.com/photo-1603028497103-44f310b6c04a?w=600&auto=format&fit=crop&q=80',
+    description: 'Cabo de carregamento e sincronização certificado MFi. Trançado em nylon para maior durabilidade.',
+    condition: 'Novo',
+    inStock: true,
+    specs: ['Certificação Apple MFi', 'Trançado em Nylon Reforçado', 'Comprimento de 1 Metro', 'Carregamento Rápido 20W'],
+  },
+  {
+    id: 'p11',
+    name: 'MacBook Air M1 2020 8GB/256GB',
+    category: 'laptops',
+    price: 375000,
+    originalPrice: 420000,
+    iconName: 'Laptop',
+    imageUrl: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600&auto=format&fit=crop&q=80',
+    description: 'Portátil silencioso e extremamente rápido. Bateria com duração até 18 horas, ecrã Retina 13.3" e chip M1 revolucionário.',
+    condition: 'Recondicionado Grade A',
+    inStock: true,
+    specs: ['Apple M1 Chip 8-Core', '8GB RAM Unificada', '256GB SSD', 'Ecrã Retina 13.3"', 'Touch ID', 'Até 18h de Bateria'],
   }
+];
+
+export const TEAM_MEMBERS: TeamMember[] = [
+  {
+    id: 'tm1',
+    name: 'Abraão Kiala',
+    role: 'CEO & Técnico Sénior',
+    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
+    bio: 'Fundador da GTA-Tech com mais de 10 anos de experiência em microeletrónica e reparação de dispositivos móveis. Especialista em microsoldadura e recuperação de dados.',
+    socialLinks: {
+      facebook: '#',
+      instagram: '#',
+      linkedin: '#',
+      whatsapp: '244923125487',
+    },
+  },
+  {
+    id: 'tm2',
+    name: 'Tânia Salvador',
+    role: 'Técnica de Hardware',
+    photoUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format&fit=crop&q=80',
+    bio: 'Especialista em reparação de ecrãs e substituição de componentes com precisão. Certificada em soldadura BGA e reparação de placas-mãe.',
+    socialLinks: {
+      instagram: '#',
+      linkedin: '#',
+    },
+  },
+  {
+    id: 'tm3',
+    name: 'João Chimuco',
+    role: 'Técnico de Software & Suporte',
+    photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80',
+    bio: 'Expert em diagnóstico de falhas de software, recuperação de dados e otimização de sistemas. Garante que cada dispositivo saia com o software a funcionar perfeitamente.',
+    socialLinks: {
+      facebook: '#',
+      instagram: '#',
+    },
+  },
+  {
+    id: 'tm4',
+    name: 'Marta Fernandes',
+    role: 'Atendimento & Logística',
+    photoUrl: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format&fit=crop&q=80',
+    bio: 'Responsável pelo acolhimento dos clientes e coordenação de todo o fluxo de reparações. Garante a transparência e comunicação clara durante todo o processo.',
+    socialLinks: {
+      linkedin: '#',
+      whatsapp: '244923125487',
+    },
+  },
+];
+
+export const GALLERY_ITEMS: GalleryItem[] = [
+  {
+    id: 'g1',
+    title: 'Laboratório de Microsoldadura',
+    category: 'laboratorio',
+    imageUrl: 'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=600&auto=format&fit=crop&q=80',
+    description: 'Bancada equipada com microscópio binocular e estação de soldadura de precisão.',
+  },
+  {
+    id: 'g2',
+    title: 'Antes e Depois — iPhone 13 Ecrã',
+    category: 'antes-depois',
+    imageUrl: 'https://images.unsplash.com/photo-1616348436168-de43ad0db179?w=600&auto=format&fit=crop&q=80',
+    description: 'Substituição de ecrã partido por vidro original com calibração TrueTone.',
+  },
+  {
+    id: 'g3',
+    title: 'Oficina GTA-Tech',
+    category: 'oficina',
+    imageUrl: 'https://images.unsplash.com/photo-1631559097172-5c103e11e257?w=600&auto=format&fit=crop&q=80',
+    description: 'Espaço de trabalho organizado com equipamentos de diagnóstico avançados.',
+  },
+  {
+    id: 'g4',
+    title: 'Reparação de Placa Samsung',
+    category: 'antes-depois',
+    imageUrl: 'https://images.unsplash.com/photo-1597856290006-2e9fe5d74b09?w=600&auto=format&fit=crop&q=80',
+    description: 'Microsoldadura em placa de Samsung Galaxy S22 com restauração de circuito de carga.',
+  },
+  {
+    id: 'g5',
+    title: 'Equipa GTA-Tech 2025',
+    category: 'equipa',
+    imageUrl: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=600&auto=format&fit=crop&q=80',
+    description: 'Equipa completa reunida para mais um ano de reparações de excelência em Cabinda.',
+  },
+  {
+    id: 'g6',
+    title: 'Teste de Qualidade Pós-Reparo',
+    category: 'laboratorio',
+    imageUrl: 'https://images.unsplash.com/photo-1580757468214-c73f7062a5cb?w=600&auto=format&fit=crop&q=80',
+    description: 'Testes rigorosos de qualidade em cada dispositivo após a reparação.',
+  },
+];
+
+export const FEATURES_LIST: FeatureItem[] = [
+  {
+    id: 'express',
+    title: 'Reparações Expresso',
+    description: 'Mais de 85% das reparações de ecrã ou substituições de baterias são efetuadas e concluídas em menos de 1 hora.',
+    badge: 'Velocidade Máxima',
+    icon: 'Timer',
+  },
+  {
+    id: 'diagnostico',
+    title: 'Diagnóstico 100% Gratuito',
+    description: 'Na GTA-Tech avaliamos o seu telemóvel ou computador fisicamente sem cobrar nada. Só avança se aprovar o orçamento.',
+    badge: 'Sem Compromisso',
+    icon: 'HeartHandshake',
+  },
+  {
+    id: 'garantia',
+    title: 'Garantia de 90 Dias',
+    description: 'Todas as nossas intervenções e substituições de componentes vêm com uma garantia de 3 meses registada por escrito.',
+    badge: 'Tranquilidade Total',
+    icon: 'ShieldCheck',
+  },
+  {
+    id: 'pecas',
+    title: 'Peças de Alta Gama',
+    description: 'Damos primazia a componentes de teor original com calibração de TrueTone e taxas de refresco idênticas de fábrica.',
+    badge: 'Qualidade Premium',
+    icon: 'Award',
+  },
+  {
+    id: 'laboratorio',
+    title: 'Laboratório Antiestático',
+    description: 'Dispomos de equipamentos profissionais calibrados contra descargas eletrostáticas, garantindo integridade total da placa.',
+    badge: 'Segurança Total',
+    icon: 'CheckCircle',
+  },
+  {
+    id: 'localizacao',
+    title: 'Centralizados em Cabinda',
+    description: 'Estamos localizados numa área nobre com segurança e fácil estacionamento para sua total comodidade.',
+    badge: 'Estacionamento Fácil',
+    icon: 'MapPin',
+  },
 ];

@@ -55,10 +55,18 @@ export interface EstimatorDevice {
   issues: EstimatorIssue[];
 }
 
+export interface FeatureItem {
+  id: string;
+  title: string;
+  description: string;
+  badge: string;
+  icon: string;
+}
+
 export interface ProductItem {
   id: string;
   name: string;
-  category: 'smartphones' | 'laptops' | 'accessories';
+  category: 'smartphones' | 'laptops' | 'tablets' | 'wearables' | 'accessories';
   price: number;
   originalPrice?: number;
   iconName: string;
@@ -67,4 +75,26 @@ export interface ProductItem {
   specs?: string[];
   inStock: boolean;
   condition: 'Novo' | 'Recondicionado Grade A+' | 'Recondicionado Grade A' | string;
+}
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  photoUrl: string;
+  bio: string;
+  socialLinks: {
+    facebook?: string;
+    instagram?: string;
+    linkedin?: string;
+    whatsapp?: string;
+  };
+}
+
+export interface GalleryItem {
+  id: string;
+  title: string;
+  category: 'antes-depois' | 'laboratorio' | 'equipa' | 'oficina';
+  imageUrl: string;
+  description: string;
 }
