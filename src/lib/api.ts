@@ -215,7 +215,7 @@ function mapProductFromAPI(a: Record<string, unknown>): ProductItem {
     imageUrl: resolveUrl((a.image as string) || ''),
     description: (a.description as string) || '',
     specs: typeof a.specs === 'string' ? JSON.parse(a.specs as string) : (a.specs as string[]) || [],
-    inStock: true,
+    inStock: (a.in_stock as boolean) ?? true,
     condition: 'Recondicionado Grade A+',
   };
 }
@@ -229,6 +229,7 @@ function mapProductToAPI(item: ProductItem): Record<string, unknown> {
     image: item.imageUrl,
     description: item.description,
     specs: JSON.stringify(item.specs || []),
+    in_stock: item.inStock,
   };
 }
 
