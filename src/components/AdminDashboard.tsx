@@ -274,7 +274,7 @@ export default function AdminDashboard() {
   const handleLogout = async () => {
     await logout();
     toast.success('Sessão terminada');
-    navigate({to: '/'});
+    navigate({to: '/login'});
   };
 
   const toggleGroup = (label: string) => {
