@@ -225,10 +225,10 @@ function mapProductToAPI(item: ProductItem): Record<string, unknown> {
     name: item.name,
     category: item.category,
     price: item.price,
-    originalPrice: item.originalPrice || null,
+    original_price: item.originalPrice || null,
     image: item.imageUrl,
     description: item.description,
-    specs: JSON.stringify(item.specs || []),
+    specs: item.specs || [],
     in_stock: item.inStock,
   };
 }
