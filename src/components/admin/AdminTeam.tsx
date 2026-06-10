@@ -12,9 +12,8 @@ import {
   adminDeleteTeam,
   adminUploadImage,
 } from '../../lib/api.ts';
-import { Plus, Pencil, Trash2, RotateCcw, X, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, RotateCcw, X, Upload, Globe, Facebook, Instagram, Linkedin, MessageCircle } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
-import DataTable from './DataTable.tsx';
 
 const empty = (): TeamMember => ({
   id: crypto.randomUUID(),
@@ -48,7 +47,7 @@ export default function AdminTeam() {
       const url = await adminUploadImage(file);
       setDraft((p) => ({ ...p, photoUrl: url }));
       toast.success('Foto enviada');
-    } catch { toast.error('Erro ao enviar foto'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao enviar foto'); }
     setUploading(false);
   };
 
@@ -64,11 +63,11 @@ export default function AdminTeam() {
         toast.success('Membro criado');
       }
       closeModal();
-    } catch { toast.error('Erro ao guardar membro'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao guardar membro'); }
   };
 
   const remove = async (id: string) => {
-    try { await adminDeleteTeam(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Membro eliminado'); } catch { toast.error('Erro ao eliminar membro'); }
+    try { await adminDeleteTeam(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Membro eliminado'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar membro'); }
   };
 
   const updateSocial = (key: string, value: string) => {
@@ -87,23 +86,42 @@ export default function AdminTeam() {
         </div>
       </div>
 
-      <DataTable
-        columns={[
-          { key: 'photo', label: 'Foto', render: (i) => i.photoUrl ? <img src={i.photoUrl} alt="" className="w-8 h-8 rounded-full object-cover" /> : <div className="w-8 h-8 rounded-full bg-slate-100" /> },
-          { key: 'name', label: 'Nome', render: (i) => <span className="font-medium">{i.name}</span> },
-          { key: 'role', label: 'Cargo', render: (i) => <span className="text-xs text-slate-500">{i.role || '—'}</span> },
-          { key: 'bio', label: 'Bio', render: (i) => <span className="text-xs text-slate-500 max-w-[200px] truncate block">{i.bio || '—'}</span> },
-          { key: 'actions', label: 'Acções', sortable: false, className: 'w-24', render: (i) => (
-            <div className="flex gap-1">
-              <button onClick={() => openEdit(i)} className="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Pencil className="w-3.5 h-3.5" /></button>
-              <button onClick={() => remove(i.id)} className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+      {items.length === 0 ? (
+        <div className="text-center py-12 text-sm text-slate-400">Nenhum membro encontrado.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((item) => (
+            <div key={item.id} className="bg-white rounded-2xl border border-slate-200 p-5 flex flex-col items-center text-center">
+              {item.photoUrl ? (
+                <img src={item.photoUrl} alt={item.name} className="w-20 h-20 rounded-full object-cover mb-3" />
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-slate-100 mb-3 flex items-center justify-center text-slate-300">
+                  <span className="text-2xl font-bold">{item.name.charAt(0)}</span>
+                </div>
+              )}
+              <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
+              <p className="text-[11px] text-slate-400 font-mono uppercase mt-0.5">{item.role || '—'}</p>
+              {item.bio && <p className="text-xs text-slate-500 mt-2 line-clamp-2">{item.bio}</p>}
+              {Object.values(item.socialLinks).some(Boolean) && (
+                <div className="flex gap-2 mt-3">
+                  {item.socialLinks.facebook && <a href={item.socialLinks.facebook} target="_blank" rel="noopener noreferrer" className="p-1.5 text-slate-400 hover:text-blue-600"><Facebook className="w-3.5 h-3.5" /></a>}
+                  {item.socialLinks.instagram && <a href={item.socialLinks.instagram} target="_blank" rel="noopener noreferrer" className="p-1.5 text-slate-400 hover:text-pink-600"><Instagram className="w-3.5 h-3.5" /></a>}
+                  {item.socialLinks.linkedin && <a href={item.socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="p-1.5 text-slate-400 hover:text-blue-700"><Linkedin className="w-3.5 h-3.5" /></a>}
+                  {item.socialLinks.whatsapp && <a href={`https://wa.me/${item.socialLinks.whatsapp}`} target="_blank" rel="noopener noreferrer" className="p-1.5 text-slate-400 hover:text-emerald-600"><MessageCircle className="w-3.5 h-3.5" /></a>}
+                </div>
+              )}
+              <div className="flex gap-2 mt-4 pt-3 border-t border-slate-100 w-full justify-center">
+                <button onClick={() => openEdit(item)} className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-blue-100 hover:text-blue-600 transition-colors cursor-pointer">
+                  <Pencil className="w-3 h-3" /> Editar
+                </button>
+                <button onClick={() => remove(item.id)} className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-red-100 hover:text-red-600 transition-colors cursor-pointer">
+                  <Trash2 className="w-3 h-3" /> Excluir
+                </button>
+              </div>
             </div>
-          )},
-        ]}
-        data={items}
-        keyExtractor={(i) => i.id}
-        emptyMessage="Nenhum membro encontrado."
-      />
+          ))}
+        </div>
+      )}
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={closeModal}>
