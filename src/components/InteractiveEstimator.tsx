@@ -183,6 +183,8 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                 })}
               </div>
 
+              {currentDevice && (
+              <>
               {/* Step 2: Brand and Model */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div>
@@ -269,7 +271,7 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                   className="w-full bg-slate-50 border border-slate-200/60 px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-brand-blue focus:outline-none text-slate-800 resize-none"
                 />
               </div>
-
+              </>)}
             </div>
           </div>
 
@@ -434,11 +436,10 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                 <span>
                   As estimativas de preços são exemplificativas e baseadas em avarias padrão. No laboratório em Cabinda confirmaremos o preço após diagnóstico minucioso gratuito.
                 </span>
+                  </div>
+                </div>
               </div>
-
             </div>
-          </div>
-        </div>
 
       </motion.div>
     </section>

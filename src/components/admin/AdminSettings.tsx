@@ -20,7 +20,7 @@ export default function AdminSettings() {
   useEffect(() => {
     adminFetchSettings()
       .then(setSettings)
-      .catch(() => toast.error('Erro ao carregar configurações'))
+      .catch((e) => toast.error(e instanceof Error ? e.message : 'Erro ao carregar configurações'))
       .finally(() => setLoading(false));
   }, []);
 
@@ -37,8 +37,8 @@ export default function AdminSettings() {
       setLastSaved(new Date());
       setHasChanges(false);
       toast.success('Configurações guardadas');
-    } catch {
-      toast.error('Erro ao guardar');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Erro ao guardar');
     } finally {
       setSaving(false);
     }

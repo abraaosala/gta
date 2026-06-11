@@ -4,8 +4,11 @@
  */
 
 import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Helmet } from 'react-helmet-async';
+import { Wrench } from 'lucide-react';
 import { useData } from './contexts/DataContext.tsx';
+import Topbar from './components/Topbar.tsx';
 import Header from './components/Header.tsx';
 import Hero from './components/Hero.tsx';
 import Brands from './components/Brands.tsx';
@@ -22,7 +25,7 @@ import SalesStore from './components/SalesStore.tsx';
 import Footer from './components/Footer.tsx';
 
 export default function App() {
-  const { businessInfo } = useData();
+  const { businessInfo, loading, sectionVisibility } = useData();
   const [preselectedServiceId, setPreselectedServiceId] = useState<string | null>(null);
 
   const handleSelectService = (serviceId: string) => {
@@ -51,7 +54,29 @@ export default function App() {
     : 'GTA-Tech · Reparação & Vendas em Cabinda';
 
   return (
-    <div className="min-h-screen relative flex flex-col font-sans overflow-x-hidden antialiased text-slate-800 bg-white transition-colors duration-300">
+    <AnimatePresence mode="wait">
+      {loading ? (
+        <motion.div
+          key="loader"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.25 }}
+          className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white"
+        >
+          <Wrench className="w-12 h-12 text-slate-900 animate-pulse" />
+          <span className="mt-4 text-lg font-bold font-display tracking-tight text-slate-900">
+            {businessInfo.name || 'GTA-Tech'}
+          </span>
+        </motion.div>
+      ) : (
+        <motion.div
+          key="content"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }}
+          className="min-h-screen relative flex flex-col font-sans overflow-x-hidden antialiased text-slate-800 bg-white transition-colors duration-300"
+        >
 
       <Helmet>
         <title>{pageTitle}</title>
@@ -61,55 +86,60 @@ export default function App() {
         <meta property="og:type" content="website" />
       </Helmet>
 
+      <Topbar />
       <Header />
 
       {/* Main Assembly Blocks with fluid transitions */}
       <main className="flex-grow">
         
         {/* Hero Section with Startup Graphics */}
-        <Hero />
+        {sectionVisibility.hero && <Hero />}
 
         {/* Corporate Supported Brands Slider */}
-        <Brands />
+        {sectionVisibility.brands && <Brands />}
 
         {/* Action-linked Services Grid */}
-        <Services onSelectService={handleSelectService} />
+        {sectionVisibility.services && <Services onSelectService={handleSelectService} />}
 
         {/* Catalog of Refurbished Premium Devices and Accessories */}
-        <SalesStore />
+        {sectionVisibility.salesStore && <SalesStore />}
 
         {/* Porquê nós / Core differential features */}
-        <Features />
+        {sectionVisibility.features && <Features />}
 
         {/* 4-step workflow process layout */}
-        <Process />
+        {sectionVisibility.process && <Process />}
 
         {/* Highly Interactive Online repair price estimator calculator */}
+        {sectionVisibility.estimator && (
         <InteractiveEstimator
           preselectedServiceId={preselectedServiceId}
           clearPreselection={handleClearPreselection}
         />
+        )}
 
         {/* Double Quote Testimonials list */}
-        <Testimonials />
+        {sectionVisibility.testimonials && <Testimonials />}
 
         {/* Interactive Accordion FAQs */}
-        <FAQ />
+        {sectionVisibility.faq && <FAQ />}
 
         {/* Team members grid */}
-        <Team />
+        {sectionVisibility.team && <Team />}
 
         {/* Photo Gallery with category filter */}
-        <Gallery />
+        {sectionVisibility.gallery && <Gallery />}
 
         {/* Dual Column Quem Somos story and Outreach form */}
-        <AboutContact />
+        {sectionVisibility.aboutContact && <AboutContact />}
 
       </main>
 
       {/* Clean informative copyright footer */}
       <Footer />
 
-    </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

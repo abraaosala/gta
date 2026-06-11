@@ -14,10 +14,11 @@ export default function Header() {
   const { businessInfo } = useData();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [logoError, setLogoError] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 40) {
+      if (window.scrollY > 100) {
         setScrolled(true);
       } else {
         setScrolled(false);
@@ -26,6 +27,10 @@ export default function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [businessInfo.logoUrl]);
 
   const navLinks = [
     { name: 'Início', href: '#inicio' },
@@ -44,7 +49,7 @@ export default function Header() {
   return (
     <header
       id="main-header"
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 lg:top-10 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
           ? 'glass-header py-3.5 shadow-lg shadow-black/80'
           : 'bg-transparent py-6 border-b border-transparent'
@@ -59,11 +64,12 @@ export default function Header() {
             onDoubleClick={() => navigate({to: '/login'})}
             className="flex items-center space-x-3 group focus:outline-none cursor-pointer"
           >
-            {businessInfo.logoUrl ? (
+            {businessInfo.logoUrl && !logoError ? (
               <img
                 key={businessInfo.logoUrl}
                 src={`${businessInfo.logoUrl}?t=${Date.now()}`}
                 alt={businessInfo.name}
+                onError={() => setLogoError(true)}
                 className="w-10 h-10 rounded-lg object-cover shadow-md transition-transform group-hover:scale-105"
               />
             ) : (

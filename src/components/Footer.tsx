@@ -3,13 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useData } from '../contexts/DataContext.tsx';
 import { Smartphone, Shield, HelpCircle, Phone, Clock, Wrench, Instagram, Facebook, Music2 } from 'lucide-react';
 
 export default function Footer() {
   const { businessInfo, settings } = useData();
+  const [logoError, setLogoError] = useState(false);
   const currentYear = new Date().getFullYear();
+
+  useEffect(() => {
+    setLogoError(false);
+  }, [businessInfo.logoUrl]);
 
   return (
     <footer id="main-footer" className="bg-slate-950 text-slate-400 pt-16 pb-8 border-t border-slate-900 transition-all font-sans">
@@ -25,8 +31,8 @@ export default function Footer() {
           {/* Col 1: About Tech (Col 5) */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center space-x-2">
-              {businessInfo.logoUrl ? (
-                <img key={businessInfo.logoUrl} src={`${businessInfo.logoUrl}?t=${Date.now()}`} alt={businessInfo.name} className="w-8 h-8 rounded-lg object-cover" />
+              {businessInfo.logoUrl && !logoError ? (
+                <img key={businessInfo.logoUrl} src={`${businessInfo.logoUrl}?t=${Date.now()}`} alt={businessInfo.name} onError={() => setLogoError(true)} className="w-8 h-8 rounded-lg object-cover" />
               ) : (
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-blue to-cyan-400 flex items-center justify-center text-white">
                   <Wrench className="w-4 h-4" />
