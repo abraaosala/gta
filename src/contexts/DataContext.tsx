@@ -19,6 +19,8 @@ import type {
 import type {BusinessInfo} from '../lib/data-store.ts';
 import {DEFAULTS} from '../lib/data-store.ts';
 import {fetchLanding} from '../lib/api.ts';
+import type {SectionVisibility} from '../lib/sections.ts';
+import {parseVisibility} from '../lib/sections.ts';
 
 interface DataContextValue {
   businessInfo: BusinessInfo;
@@ -33,6 +35,7 @@ interface DataContextValue {
   team: TeamMember[];
   gallery: GalleryItem[];
   settings: Record<string, string>;
+  sectionVisibility: SectionVisibility;
   loading: boolean;
   refresh: () => Promise<void>;
   updateBusinessInfo: (partial: Partial<BusinessInfo>) => void;
@@ -103,7 +106,7 @@ export function DataProvider({children}: {children: React.ReactNode}) {
   }, []);
 
   return (
-    <DataContext.Provider value={{...data, loading, refresh, updateBusinessInfo}}>
+    <DataContext.Provider value={{...data, sectionVisibility: parseVisibility(data.settings.sections_visible), loading, refresh, updateBusinessInfo}}>
       {children}
     </DataContext.Provider>
   );
