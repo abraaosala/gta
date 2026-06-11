@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { BrandItem } from '../../types.ts';
 import {
   adminFetchBrands,
@@ -13,8 +13,8 @@ import {
 } from '../../lib/api.ts';
 import { Plus, Pencil, Trash2, RotateCcw, X } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
-import DataTable from './DataTable.tsx';
-import type { Column } from './DataTable.tsx';
+import Pagination from './Pagination.tsx';
+
 
 const empty = (): BrandItem => ({ id: crypto.randomUUID(), name: '', logoType: 'smartphone' });
 
@@ -25,8 +25,15 @@ export default function AdminBrands() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<BrandItem>(empty());
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
-  useEffect(() => { adminFetchBrands().then(setItems).catch(() => {}).finally(() => setLoading(false)); }, []);
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchBrands(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(page); }, [page, load]);
 
   const openCreate = () => { setDraft(empty()); setEditingId(null); setModalOpen(true); };
   const openEdit = (item: BrandItem) => { setDraft({ ...item }); setEditingId(item.id); setModalOpen(true); };
@@ -44,11 +51,11 @@ export default function AdminBrands() {
         toast.success('Marca criada');
       }
       closeModal();
-    } catch { toast.error('Erro ao guardar marca'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao guardar marca'); }
   };
 
   const remove = async (id: string) => {
-    try { await adminDeleteBrand(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Marca eliminada'); } catch { toast.error('Erro ao eliminar marca'); }
+    try { await adminDeleteBrand(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Marca eliminada'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar marca'); }
   };
 
   if (loading) return <div className="text-sm text-slate-400">A carregar...</div>;
@@ -63,21 +70,26 @@ export default function AdminBrands() {
         </div>
       </div>
 
-      <DataTable
-        columns={[
-          { key: 'avatar', label: '#', sortable: false, className: 'w-10', render: (i) => <span className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600">{i.name[0]}</span> },
-          { key: 'name', label: 'Nome', render: (i) => <span className="font-medium">{i.name}</span> },
-          { key: 'actions', label: 'Acções', sortable: false, className: 'w-24', render: (i) => (
-            <div className="flex gap-1">
-              <button onClick={() => openEdit(i)} className="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Pencil className="w-3.5 h-3.5" /></button>
-              <button onClick={() => remove(i.id)} className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+      {items.length === 0 ? (
+        <div className="text-center py-12 text-sm text-slate-400">Nenhuma marca encontrada.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((item) => (
+            <div key={item.id} className="bg-white rounded-2xl border border-slate-200 p-4 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-base font-bold text-slate-600 shrink-0">{item.name[0]}</span>
+                <span className="text-sm font-bold text-slate-900 truncate">{item.name}</span>
+              </div>
+              <div className="flex gap-1 shrink-0">
+                <button onClick={() => openEdit(item)} className="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Pencil className="w-3.5 h-3.5" /></button>
+                <button onClick={() => remove(item.id)} className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+              </div>
             </div>
-          )},
-        ]}
-        data={items}
-        keyExtractor={(i) => i.id}
-        emptyMessage="Nenhuma marca encontrada."
-      />
+          ))}
+        </div>
+      )}
+
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={closeModal}>

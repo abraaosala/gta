@@ -3,27 +3,31 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { adminFetchContacts, adminDeleteContact } from '../../lib/api.ts';
 import type { AdminContact } from '../../lib/api.ts';
 import { Trash2, RotateCcw, Mail, Phone, Calendar } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
 import DataTable from './DataTable.tsx';
 import type { Column } from './DataTable.tsx';
+import Pagination from './Pagination.tsx';
 
 export default function AdminContacts() {
   const toast = useToast();
   const [items, setItems] = useState<AdminContact[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
-  const load = () => {
-    adminFetchContacts().then(setItems).catch(() => {}).finally(() => setLoading(false));
-  };
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchContacts(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(page); }, [page, load]);
 
   const remove = async (id: string) => {
-    try { await adminDeleteContact(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Contacto eliminado'); } catch { toast.error('Erro ao eliminar contacto'); }
+    try { await adminDeleteContact(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Contacto eliminado'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar contacto'); }
   };
 
   if (loading) return <div className="text-sm text-slate-400">A carregar...</div>;
@@ -32,8 +36,8 @@ export default function AdminContacts() {
     return (
       <div>
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-bold font-display text-slate-900">Contactos</h2>
-          <button onClick={load} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 cursor-pointer"><RotateCcw className="w-3.5 h-3.5" /> Actualizar</button>
+          <h2 className="text-lg font-bold font-display text-slate-900">Contactos ({pagination.total})</h2>
+          <button onClick={() => load(page)} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 cursor-pointer"><RotateCcw className="w-3.5 h-3.5" /> Actualizar</button>
         </div>
         <p className="text-sm text-slate-400">Nenhum contacto recebido.</p>
       </div>
@@ -43,8 +47,8 @@ export default function AdminContacts() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-bold font-display text-slate-900">Contactos ({items.length})</h2>
-        <button onClick={load} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 cursor-pointer"><RotateCcw className="w-3.5 h-3.5" /> Actualizar</button>
+        <h2 className="text-lg font-bold font-display text-slate-900">Contactos ({pagination.total})</h2>
+        <button onClick={() => load(page)} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 cursor-pointer"><RotateCcw className="w-3.5 h-3.5" /> Actualizar</button>
       </div>
 
       <DataTable
@@ -62,6 +66,8 @@ export default function AdminContacts() {
         keyExtractor={(c) => c.id}
         emptyMessage="Nenhum contacto encontrado."
       />
+
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
     </div>
   );
 }

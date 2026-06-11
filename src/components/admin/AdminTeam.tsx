@@ -3,17 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { TeamMember } from '../../types.ts';
 import {
   adminFetchTeam,
   adminCreateTeam,
   adminUpdateTeam,
   adminDeleteTeam,
-  adminUploadImage,
 } from '../../lib/api.ts';
-import { Plus, Pencil, Trash2, RotateCcw, X, Upload, Globe, Facebook, Instagram, Linkedin, MessageCircle } from 'lucide-react';
+import { Plus, Pencil, Trash2, RotateCcw, X, Globe, Facebook, Instagram, Linkedin, MessageCircle } from 'lucide-react';
+import FileUpload from './FileUpload.tsx';
 import { useToast } from '../../lib/toast.tsx';
+import Pagination from './Pagination.tsx';
 
 const empty = (): TeamMember => ({
   id: crypto.randomUUID(),
@@ -31,25 +32,19 @@ export default function AdminTeam() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<TeamMember>(empty());
-  const [uploading, setUploading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
-  useEffect(() => { adminFetchTeam().then(setItems).catch(() => {}).finally(() => setLoading(false)); }, []);
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchTeam(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(page); }, [page, load]);
 
   const openCreate = () => { setDraft(empty()); setEditingId(null); setModalOpen(true); };
   const openEdit = (item: TeamMember) => { setDraft({ ...item, socialLinks: { ...item.socialLinks } }); setEditingId(item.id); setModalOpen(true); };
   const closeModal = () => { setModalOpen(false); setEditingId(null); };
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const url = await adminUploadImage(file);
-      setDraft((p) => ({ ...p, photoUrl: url }));
-      toast.success('Foto enviada');
-    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao enviar foto'); }
-    setUploading(false);
-  };
 
   const save = async () => {
     try {
@@ -123,6 +118,8 @@ export default function AdminTeam() {
         </div>
       )}
 
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
+
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={closeModal}>
           <div className="bg-white rounded-2xl max-w-lg w-full mx-4 max-h-[90vh] overflow-y-auto shadow-xl" onClick={(e) => e.stopPropagation()}>
@@ -144,18 +141,7 @@ export default function AdminTeam() {
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">Foto</label>
-                <div className="flex items-center gap-3">
-                  {draft.photoUrl && <img src={draft.photoUrl} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />}
-                  <label className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 cursor-pointer">
-                    <Upload className="w-3.5 h-3.5" />
-                    {uploading ? 'A enviar...' : 'Upload'}
-                    <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">URL da Foto</label>
-                <input value={draft.photoUrl} onChange={(e) => setDraft((p) => ({ ...p, photoUrl: e.target.value }))} placeholder="https://..." className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+                <FileUpload value={draft.photoUrl} onUpload={(url) => setDraft((p) => ({ ...p, photoUrl: url }))} showInput />
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">Biografia</label>

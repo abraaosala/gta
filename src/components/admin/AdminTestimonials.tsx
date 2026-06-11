@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { TestimonialItem } from '../../types.ts';
 import {
   adminFetchTestimonials,
@@ -13,8 +13,8 @@ import {
 } from '../../lib/api.ts';
 import { Plus, Pencil, Trash2, RotateCcw, X, Star } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
-import DataTable from './DataTable.tsx';
-import type { Column } from './DataTable.tsx';
+import Pagination from './Pagination.tsx';
+
 
 const empty = (): TestimonialItem => ({
   id: crypto.randomUUID(), name: '', deviceRepaired: '', comment: '', rating: 5, date: '',
@@ -27,8 +27,15 @@ export default function AdminTestimonials() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<TestimonialItem>(empty());
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
-  useEffect(() => { adminFetchTestimonials().then(setItems).catch(() => {}).finally(() => setLoading(false)); }, []);
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchTestimonials(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(page); }, [page, load]);
 
   const openCreate = () => { setDraft(empty()); setEditingId(null); setModalOpen(true); };
   const openEdit = (item: TestimonialItem) => { setDraft({ ...item }); setEditingId(item.id); setModalOpen(true); };
@@ -46,11 +53,11 @@ export default function AdminTestimonials() {
         toast.success('Depoimento criado');
       }
       closeModal();
-    } catch { toast.error('Erro ao guardar depoimento'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao guardar depoimento'); }
   };
 
   const remove = async (id: string) => {
-    try { await adminDeleteTestimonial(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Depoimento eliminado'); } catch { toast.error('Erro ao eliminar depoimento'); }
+    try { await adminDeleteTestimonial(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Depoimento eliminado'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar depoimento'); }
   };
 
   if (loading) return <div className="text-sm text-slate-400">A carregar...</div>;
@@ -65,27 +72,32 @@ export default function AdminTestimonials() {
         </div>
       </div>
 
-      <DataTable
-        columns={[
-          { key: 'name', label: 'Nome', render: (i) => <span className="font-medium">{i.name}</span> },
-          { key: 'deviceRepaired', label: 'Aparelho', render: (i) => <span className="text-xs text-slate-500">{i.deviceRepaired || '—'}</span> },
-          { key: 'comment', label: 'Depoimento', render: (i) => <span className="text-xs text-slate-500 max-w-[250px] truncate block">"{i.comment}"</span> },
-          { key: 'rating', label: 'Rating', render: (i) => (
-            <span className="flex items-center gap-0.5 text-amber-500">
-              {Array.from({ length: 5 }, (_, idx) => <Star key={idx} className={`w-3 h-3 ${idx < i.rating ? 'fill-current' : 'opacity-20'}`} />)}
-            </span>
-          )},
-          { key: 'actions', label: 'Acções', sortable: false, className: 'w-24', render: (i) => (
-            <div className="flex gap-1">
-              <button onClick={() => openEdit(i)} className="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Pencil className="w-3.5 h-3.5" /></button>
-              <button onClick={() => remove(i.id)} className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+      {items.length === 0 ? (
+        <div className="text-center py-12 text-sm text-slate-400">Nenhum depoimento encontrado.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((item) => (
+            <div key={item.id} className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
+                {item.deviceRepaired && <span className="text-[11px] text-slate-400">— {item.deviceRepaired}</span>}
+              </div>
+              <p className="text-xs text-slate-500 italic flex-1 mb-3">"{item.comment}"</p>
+              <div className="flex items-center justify-between mt-auto pt-3 border-t border-slate-100">
+                <span className="flex items-center gap-0.5 text-amber-500">
+                  {Array.from({ length: 5 }, (_, idx) => <Star key={idx} className={`w-3 h-3 ${idx < item.rating ? 'fill-current' : 'opacity-20'}`} />)}
+                </span>
+                <div className="flex gap-1">
+                  <button onClick={() => openEdit(item)} className="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Pencil className="w-3.5 h-3.5" /></button>
+                  <button onClick={() => remove(item.id)} className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+                </div>
+              </div>
             </div>
-          )},
-        ]}
-        data={items}
-        keyExtractor={(i) => i.id}
-        emptyMessage="Nenhum depoimento encontrado."
-      />
+          ))}
+        </div>
+      )}
+
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={closeModal}>

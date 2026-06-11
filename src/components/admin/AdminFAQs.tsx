@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { FAQItem } from '../../types.ts';
 import {
   adminFetchFAQs,
@@ -15,6 +15,7 @@ import { Plus, Pencil, Trash2, RotateCcw, X } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
 import DataTable from './DataTable.tsx';
 import type { Column } from './DataTable.tsx';
+import Pagination from './Pagination.tsx';
 
 const empty = (): FAQItem => ({ id: crypto.randomUUID(), question: '', answer: '' });
 
@@ -25,8 +26,15 @@ export default function AdminFAQs() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<FAQItem>(empty());
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
-  useEffect(() => { adminFetchFAQs().then(setItems).catch(() => {}).finally(() => setLoading(false)); }, []);
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchFAQs(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(page); }, [page, load]);
 
   const openCreate = () => { setDraft(empty()); setEditingId(null); setModalOpen(true); };
   const openEdit = (item: FAQItem) => { setDraft({ ...item }); setEditingId(item.id); setModalOpen(true); };
@@ -44,11 +52,11 @@ export default function AdminFAQs() {
         toast.success('FAQ criada');
       }
       closeModal();
-    } catch { toast.error('Erro ao guardar FAQ'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao guardar FAQ'); }
   };
 
   const remove = async (id: string) => {
-    try { await adminDeleteFAQ(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('FAQ eliminada'); } catch { toast.error('Erro ao eliminar FAQ'); }
+    try { await adminDeleteFAQ(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('FAQ eliminada'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar FAQ'); }
   };
 
   if (loading) return <div className="text-sm text-slate-400">A carregar...</div>;
@@ -78,6 +86,8 @@ export default function AdminFAQs() {
         keyExtractor={(i) => i.id}
         emptyMessage="Nenhuma FAQ encontrada."
       />
+
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={closeModal}>

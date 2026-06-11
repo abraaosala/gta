@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   adminFetchUsers,
   adminCreateUser,
@@ -14,6 +14,7 @@ import {
 import type { AdminUser } from '../../lib/api.ts';
 import { Plus, Pencil, Trash2, RotateCcw, KeyRound } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
+import Pagination from './Pagination.tsx';
 
 type PasswordForm = { userId: string; current: string; newPwd: string };
 
@@ -24,14 +25,17 @@ export default function AdminUsers() {
   const [editing, setEditing] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [passwordForm, setPasswordForm] = useState<PasswordForm | null>(null);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
   const [draft, setDraft] = useState({ username: '', password: '', role: 'admin', display_name: '' });
 
-  const load = () => {
-    adminFetchUsers().then(setItems).catch(() => {}).finally(() => setLoading(false));
-  };
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchUsers(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(page); }, [page, load]);
 
   const setField = (id: string, field: keyof AdminUser, value: unknown) =>
     setItems((p) => p.map((u) => (u.id === id ? { ...u, [field]: value } : u)));
@@ -43,7 +47,7 @@ export default function AdminUsers() {
       setCreating(false);
       setDraft({ username: '', password: '', role: 'admin', display_name: '' });
       toast.success('Utilizador criado');
-    } catch { toast.error('Erro ao criar utilizador'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao criar utilizador'); }
   };
 
   const update = async (id: string) => {
@@ -54,11 +58,11 @@ export default function AdminUsers() {
       setItems((p) => p.map((i) => (i.id === id ? updated : i)));
       setEditing(null);
       toast.success('Utilizador actualizado');
-    } catch { toast.error('Erro ao actualizar utilizador'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao actualizar utilizador'); }
   };
 
   const remove = async (id: string) => {
-    try { await adminDeleteUser(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Utilizador eliminado'); } catch { toast.error('Erro ao eliminar utilizador'); }
+    try { await adminDeleteUser(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Utilizador eliminado'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar utilizador'); }
   };
 
   const changePassword = async () => {
@@ -67,7 +71,7 @@ export default function AdminUsers() {
       await adminChangePassword(passwordForm.current, passwordForm.newPwd);
       setPasswordForm(null);
       toast.success('Password alterada com sucesso');
-    } catch { toast.error('Erro ao alterar password'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao alterar password'); }
   };
 
   if (loading) return <div className="text-sm text-slate-400">A carregar...</div>;
@@ -77,7 +81,7 @@ export default function AdminUsers() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-bold font-display text-slate-900">Utilizadores</h2>
         <div className="flex gap-2">
-          <button onClick={load} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 cursor-pointer"><RotateCcw className="w-3.5 h-3.5" /></button>
+          <button onClick={() => load(page)} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 cursor-pointer"><RotateCcw className="w-3.5 h-3.5" /></button>
           <button onClick={() => setCreating(true)} className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-blue-600 rounded-xl hover:bg-blue-500 cursor-pointer"><Plus className="w-3.5 h-3.5" /> Novo</button>
         </div>
       </div>
@@ -149,6 +153,8 @@ export default function AdminUsers() {
           </tbody>
         </table>
       </div>
+
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
 
       {/* Create user form */}
       {creating && (

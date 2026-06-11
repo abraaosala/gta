@@ -4,11 +4,12 @@
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { adminFetchInfo, adminUpdateInfo, adminUploadImage } from '../../lib/api.ts';
+import { adminFetchInfo, adminUpdateInfo } from '../../lib/api.ts';
 import type { BusinessInfo } from '../../lib/data-store.ts';
 import { useData } from '../../contexts/DataContext.tsx';
-import { RotateCcw, Upload, Check, Loader, ImageIcon } from 'lucide-react';
+import { RotateCcw, Check, Loader } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
+import FileUpload from './FileUpload.tsx';
 
 const SAVE_DEBOUNCE_MS = 1500;
 
@@ -39,8 +40,8 @@ export default function AdminInfo() {
         setLastSaved(new Date());
         refresh();
       }
-    } catch {
-      if (mounted.current) toast.error('Erro ao guardar');
+    } catch (e) {
+      if (mounted.current) toast.error(e instanceof Error ? e.message : 'Erro ao guardar');
     } finally {
       if (mounted.current) setSaving(false);
     }
@@ -57,47 +58,6 @@ export default function AdminInfo() {
     setForm(next);
     updateBusinessInfo({ [key]: value });
     scheduleSave(next);
-  };
-
-  const handleImageUpload = useCallback(async (file: File, field: 'logoUrl' | 'faviconUrl', label: string) => {
-    if (!form) return;
-    setSaving(true);
-    try {
-      const url = await adminUploadImage(file);
-      const next = { ...form, [field]: url };
-      setForm(next);
-      updateBusinessInfo({ [field]: url });
-      if (saveTimer.current) clearTimeout(saveTimer.current);
-      await doSave(next);
-      toast.success(`${label} actualizado`);
-    } catch {
-      toast.error(`Erro ao enviar ${label.toLowerCase()}`);
-    } finally {
-      setSaving(false);
-    }
-  }, [form, updateBusinessInfo, doSave, toast]);
-
-  const [dragOverLogo, setDragOverLogo] = useState(false);
-  const [dragOverFavicon, setDragOverFavicon] = useState(false);
-
-  const handleDrop = (field: 'logoUrl' | 'faviconUrl', label: string) => (e: React.DragEvent) => {
-    e.preventDefault();
-    field === 'logoUrl' ? setDragOverLogo(false) : setDragOverFavicon(false);
-    const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith('image/')) handleImageUpload(file, field, label);
-  };
-
-  const handleDragOver = (field: 'logoUrl' | 'faviconUrl') => () => {
-    field === 'logoUrl' ? setDragOverLogo(true) : setDragOverFavicon(true);
-  };
-
-  const handleDragLeave = (field: 'logoUrl' | 'faviconUrl') => () => {
-    field === 'logoUrl' ? setDragOverLogo(false) : setDragOverFavicon(false);
-  };
-
-  const handleFileInput = (field: 'logoUrl' | 'faviconUrl', label: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) handleImageUpload(file, field, label);
   };
 
   const fields: { label: string; key: keyof BusinessInfo }[] = [
@@ -137,81 +97,17 @@ export default function AdminInfo() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Logo upload - drag & drop */}
+        {/* Logo upload */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <label className="block text-[10px] font-bold text-slate-400 uppercase font-mono mb-3">Logo da Empresa</label>
-            <div
-              onDrop={handleDrop('logoUrl', 'Logo')}
-              onDragOver={(e) => { e.preventDefault(); setDragOverLogo(true); }}
-              onDragLeave={() => setDragOverLogo(false)}
-              className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 transition-all cursor-pointer ${
-                dragOverLogo
-                  ? 'border-blue-400 bg-blue-50'
-                  : form.logoUrl
-                    ? 'border-slate-200 bg-slate-50/50'
-                    : 'border-slate-200 hover:border-slate-300 bg-slate-50'
-              }`}
-              onClick={() => document.getElementById('logo-upload-input')?.click()}
-            >
-              {form.logoUrl ? (
-                <img src={form.logoUrl} alt="Logo" className="max-w-full max-h-32 object-contain rounded-lg" />
-              ) : (
-                <ImageIcon className="w-12 h-12 text-slate-300 mb-2" />
-              )}
-              <div className="mt-3 text-center">
-                <span className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-500">
-                  <Upload className="w-3.5 h-3.5" />
-                  {form.logoUrl ? 'Clique ou arraste para trocar' : 'Clique ou arraste o logo'}
-                </span>
-                <p className="text-[10px] text-slate-400 mt-1">PNG, JPG ou WebP</p>
-              </div>
-              <input
-                id="logo-upload-input"
-                type="file"
-                accept="image/*"
-                onChange={handleFileInput('logoUrl', 'Logo')}
-                className="hidden"
-              />
-            </div>
+            <FileUpload value={form.logoUrl} onUpload={(url: string) => updateField('logoUrl', url)} />
           </div>
 
-          {/* Favicon upload - drag & drop */}
+          {/* Favicon upload */}
           <div className="bg-white rounded-xl border border-slate-200 p-6">
             <label className="block text-[10px] font-bold text-slate-400 uppercase font-mono mb-3">Favicon</label>
-            <div
-              onDrop={handleDrop('faviconUrl', 'Favicon')}
-              onDragOver={(e) => { e.preventDefault(); setDragOverFavicon(true); }}
-              onDragLeave={() => setDragOverFavicon(false)}
-              className={`relative flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 transition-all cursor-pointer ${
-                dragOverFavicon
-                  ? 'border-blue-400 bg-blue-50'
-                  : form.faviconUrl
-                    ? 'border-slate-200 bg-slate-50/50'
-                    : 'border-slate-200 hover:border-slate-300 bg-slate-50'
-              }`}
-              onClick={() => document.getElementById('favicon-upload-input')?.click()}
-            >
-              {form.faviconUrl ? (
-                <img src={form.faviconUrl} alt="Favicon" className="max-w-full max-h-16 object-contain rounded-lg" />
-              ) : (
-                <ImageIcon className="w-8 h-8 text-slate-300 mb-2" />
-              )}
-              <div className="mt-3 text-center">
-                <span className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-500">
-                  <Upload className="w-3.5 h-3.5" />
-                  {form.faviconUrl ? 'Clique ou arraste para trocar' : 'Clique ou arraste o favicon'}
-                </span>
-                <p className="text-[10px] text-slate-400 mt-1">PNG, JPG, WebP ou ICO</p>
-              </div>
-              <input
-                id="favicon-upload-input"
-                type="file"
-                accept="image/*"
-                onChange={handleFileInput('faviconUrl', 'Favicon')}
-                className="hidden"
-              />
-            </div>
+            <FileUpload value={form.faviconUrl} onUpload={(url: string) => updateField('faviconUrl', url)} />
           </div>
         </div>
 

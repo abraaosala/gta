@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { SupportStep } from '../../types.ts';
 import {
   adminFetchProcess,
@@ -15,6 +15,7 @@ import { Plus, Pencil, Trash2, RotateCcw, X } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
 import DataTable from './DataTable.tsx';
 import type { Column } from './DataTable.tsx';
+import Pagination from './Pagination.tsx';
 
 type ProcessItem = SupportStep & { _apiId?: string };
 
@@ -27,8 +28,15 @@ export default function AdminProcess() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingApiId, setEditingApiId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ProcessItem>(empty());
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
-  useEffect(() => { adminFetchProcess().then(setItems).catch(() => {}).finally(() => setLoading(false)); }, []);
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchProcess(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(page); }, [page, load]);
 
   const openCreate = () => { setDraft(empty()); setEditingApiId(null); setModalOpen(true); };
   const openEdit = (item: ProcessItem) => { setDraft({ ...item }); setEditingApiId(item._apiId || null); setModalOpen(true); };
@@ -46,11 +54,11 @@ export default function AdminProcess() {
         toast.success('Etapa criada');
       }
       closeModal();
-    } catch { toast.error('Erro ao guardar etapa'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao guardar etapa'); }
   };
 
   const remove = async (apiId: string) => {
-    try { await adminDeleteProcess(apiId); setItems((p) => p.filter((i) => i._apiId !== apiId)); toast.success('Etapa eliminada'); } catch { toast.error('Erro ao eliminar etapa'); }
+    try { await adminDeleteProcess(apiId); setItems((p) => p.filter((i) => i._apiId !== apiId)); toast.success('Etapa eliminada'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar etapa'); }
   };
 
   if (loading) return <div className="text-sm text-slate-400">A carregar...</div>;
@@ -82,6 +90,8 @@ export default function AdminProcess() {
         keyExtractor={(i) => (i as any)._apiId}
         emptyMessage="Nenhuma etapa encontrada."
       />
+
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={closeModal}>

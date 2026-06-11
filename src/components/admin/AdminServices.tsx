@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { ServiceItem } from '../../types.ts';
 import {
   adminFetchServices,
@@ -15,6 +15,7 @@ import { Plus, Pencil, Trash2, RotateCcw, X } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
 import DataTable from './DataTable.tsx';
 import type { Column } from './DataTable.tsx';
+import Pagination from './Pagination.tsx';
 
 const actionBtn = (onEdit: () => void, onDelete: () => void) => (
   <div className="flex gap-1">
@@ -55,10 +56,15 @@ export default function AdminServices() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ServiceItem>(empty());
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
-  useEffect(() => {
-    adminFetchServices().then(setItems).catch(() => {}).finally(() => setLoading(false));
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchServices(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { load(page); }, [page, load]);
 
   const openCreate = () => {
     setDraft(empty());
@@ -89,7 +95,7 @@ export default function AdminServices() {
         toast.success('Serviço criado');
       }
       closeModal();
-    } catch { toast.error('Erro ao guardar serviço'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao guardar serviço'); }
   };
 
   const remove = async (id: string) => {
@@ -97,7 +103,7 @@ export default function AdminServices() {
       await adminDeleteService(id);
       setItems((prev) => prev.filter((i) => i.id !== id));
       toast.success('Serviço eliminado');
-    } catch { toast.error('Erro ao eliminar serviço'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar serviço'); }
   };
 
   if (loading) return <div className="text-sm text-slate-400">A carregar...</div>;
@@ -122,6 +128,8 @@ export default function AdminServices() {
         keyExtractor={(i) => i.id}
         emptyMessage="Nenhum serviço encontrado."
       />
+
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={closeModal}>

@@ -3,19 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { ProductItem } from '../../types.ts';
 import {
   adminFetchProducts,
   adminCreateProduct,
   adminUpdateProduct,
   adminDeleteProduct,
-  adminUploadImage,
 } from '../../lib/api.ts';
-import { Plus, Pencil, Trash2, RotateCcw, X, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, RotateCcw, X } from 'lucide-react';
+import FileUpload from './FileUpload.tsx';
 import { useToast } from '../../lib/toast.tsx';
-import DataTable from './DataTable.tsx';
-import type { Column } from './DataTable.tsx';
+import Pagination from './Pagination.tsx';
 
 const empty = (): ProductItem => ({
   id: crypto.randomUUID(),
@@ -37,10 +36,15 @@ export default function AdminProducts() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ProductItem>(empty());
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
-  useEffect(() => {
-    adminFetchProducts().then(setItems).catch(() => {}).finally(() => setLoading(false));
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchProducts(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => { load(page); }, [page, load]);
 
   const openCreate = () => {
     setDraft(empty());
@@ -71,7 +75,7 @@ export default function AdminProducts() {
         toast.success('Produto criado');
       }
       closeModal();
-    } catch { toast.error('Erro ao guardar produto'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao guardar produto'); }
   };
 
   const remove = async (id: string) => {
@@ -79,7 +83,7 @@ export default function AdminProducts() {
       await adminDeleteProduct(id);
       setItems((prev) => prev.filter((i) => i.id !== id));
       toast.success('Produto eliminado');
-    } catch { toast.error('Erro ao eliminar produto'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar produto'); }
   };
 
   const setDraftField = <K extends keyof ProductItem>(field: K, value: ProductItem[K]) => {
@@ -103,28 +107,39 @@ export default function AdminProducts() {
         </div>
       </div>
 
-      <DataTable
-        columns={[
-          { key: 'image', label: 'Imagem', sortable: false, render: (i) => <img src={i.imageUrl} alt="" className="w-10 h-10 rounded-lg object-cover bg-slate-100" /> },
-          { key: 'name', label: 'Nome', render: (i) => <span className="font-medium">{i.name}</span> },
-          { key: 'category', label: 'Categoria', render: (i) => <span className="text-xs capitalize text-slate-400">{i.category}</span> },
-          { key: 'price', label: 'Preço', render: (i) => <span className="font-medium">{i.price.toLocaleString('pt')} Kz</span> },
-          { key: 'inStock', label: 'Stock', render: (i) => (
-            <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${i.inStock ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 bg-slate-100'}`}>
-              {i.inStock ? 'Em stock' : 'Indisponível'}
-            </span>
-          )},
-          { key: 'actions', label: 'Acções', sortable: false, className: 'w-24', render: (i) => (
-            <div className="flex gap-1">
-              <button onClick={() => openEdit(i)} className="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Pencil className="w-3.5 h-3.5" /></button>
-              <button onClick={() => remove(i.id)} className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+      {items.length === 0 ? (
+        <div className="text-center py-12 text-sm text-slate-400">Nenhum produto encontrado.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((item) => (
+            <div key={item.id} className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col">
+              {item.imageUrl ? (
+                <img src={item.imageUrl} alt={item.name} className="w-full h-40 rounded-xl object-cover mb-3" />
+              ) : (
+                <div className="w-full h-40 rounded-xl bg-slate-100 mb-3 flex items-center justify-center text-slate-300 text-sm">{item.name[0]}</div>
+              )}
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
+                <p className="text-[11px] capitalize text-slate-400 font-medium mt-0.5">{item.category}</p>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-base font-bold text-slate-900">{item.price.toLocaleString('pt')} Kz</span>
+                  <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${item.inStock ? 'text-emerald-600 bg-emerald-50' : 'text-slate-400 bg-slate-100'}`}>
+                    {item.inStock ? 'Em stock' : 'Indisponível'}
+                  </span>
+                </div>
+              </div>
+              <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
+                <button onClick={() => openEdit(item)} className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-blue-100 hover:text-blue-600 transition-colors cursor-pointer">
+                  <Pencil className="w-3 h-3" /> Editar
+                </button>
+                <button onClick={() => remove(item.id)} className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-red-100 hover:text-red-600 transition-colors cursor-pointer">
+                  <Trash2 className="w-3 h-3" /> Excluir
+                </button>
+              </div>
             </div>
-          )},
-        ]}
-        data={items}
-        keyExtractor={(i) => i.id}
-        emptyMessage="Nenhum produto encontrado."
-      />
+          ))}
+        </div>
+      )}
 
       {/* Modal */}
       {modalOpen && (
@@ -169,25 +184,9 @@ export default function AdminProducts() {
 
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">URL da Imagem</label>
-                <div className="flex gap-2">
-                  <input value={draft.imageUrl} onChange={(e) => setDraftField('imageUrl', e.target.value)} placeholder="https://..." className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm" />
-                  <label className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-white bg-emerald-600 rounded-xl hover:bg-emerald-500 cursor-pointer shrink-0">
-                    <Upload className="w-3.5 h-3.5" />
-                    Upload
-                    <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" className="hidden" onChange={async (e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      try {
-                        const url = await adminUploadImage(file);
-                        setDraftField('imageUrl', url);
-                        toast.success('Imagem enviada');
-                      } catch { toast.error('Erro ao fazer upload'); }
-                    }} />
-                  </label>
-                </div>
-                {draft.imageUrl && (
-                  <img src={draft.imageUrl} alt="" className="mt-2 w-24 h-24 rounded-lg object-cover bg-slate-100 border border-slate-200" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }} />
-                )}
+                <FileUpload value={draft.imageUrl} onUpload={(url) => setDraftField('imageUrl', url)} showInput />
+      
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
               </div>
 
               <div>

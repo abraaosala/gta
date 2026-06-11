@@ -3,18 +3,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import type { GalleryItem } from '../../types.ts';
 import {
   adminFetchGallery,
   adminCreateGallery,
   adminUpdateGallery,
   adminDeleteGallery,
-  adminUploadImage,
 } from '../../lib/api.ts';
-import { Plus, Pencil, Trash2, RotateCcw, X, Upload } from 'lucide-react';
+import { Plus, Pencil, Trash2, RotateCcw, X } from 'lucide-react';
+import FileUpload from './FileUpload.tsx';
 import { useToast } from '../../lib/toast.tsx';
-import DataTable from './DataTable.tsx';
+import Pagination from './Pagination.tsx';
+
 
 const empty = (): GalleryItem => ({
   id: crypto.randomUUID(),
@@ -38,25 +39,19 @@ export default function AdminGallery() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<GalleryItem>(empty());
-  const [uploading, setUploading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
-  useEffect(() => { adminFetchGallery().then(setItems).catch(() => {}).finally(() => setLoading(false)); }, []);
+  const load = useCallback((p: number) => {
+    setLoading(true);
+    adminFetchGallery(p).then((res) => { setItems(res.data); setPagination(res); }).catch(() => {}).finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(page); }, [page, load]);
 
   const openCreate = () => { setDraft(empty()); setEditingId(null); setModalOpen(true); };
   const openEdit = (item: GalleryItem) => { setDraft({ ...item }); setEditingId(item.id); setModalOpen(true); };
   const closeModal = () => { setModalOpen(false); setEditingId(null); };
-
-  const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setUploading(true);
-    try {
-      const url = await adminUploadImage(file);
-      setDraft((p) => ({ ...p, imageUrl: url }));
-      toast.success('Imagem enviada');
-    } catch { toast.error('Erro ao enviar imagem'); }
-    setUploading(false);
-  };
 
   const save = async () => {
     try {
@@ -70,11 +65,11 @@ export default function AdminGallery() {
         toast.success('Imagem criada');
       }
       closeModal();
-    } catch { toast.error('Erro ao guardar imagem'); }
+    } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao guardar imagem'); }
   };
 
   const remove = async (id: string) => {
-    try { await adminDeleteGallery(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Imagem eliminada'); } catch { toast.error('Erro ao eliminar imagem'); }
+    try { await adminDeleteGallery(id); setItems((p) => p.filter((i) => i.id !== id)); toast.success('Imagem eliminada'); } catch (e) { toast.error(e instanceof Error ? e.message : 'Erro ao eliminar imagem'); }
   };
 
   if (loading) return <div className="text-sm text-slate-400">A carregar...</div>;
@@ -89,26 +84,40 @@ export default function AdminGallery() {
         </div>
       </div>
 
-      <DataTable
-        columns={[
-          { key: 'image', label: 'Imagem', render: (i) => i.imageUrl ? <img src={i.imageUrl} alt="" className="w-12 h-9 rounded-lg object-cover" /> : <div className="w-12 h-9 rounded-lg bg-slate-100" /> },
-          { key: 'title', label: 'Título', render: (i) => <span className="font-medium">{i.title}</span> },
-          { key: 'category', label: 'Categoria', render: (i) => {
-            const cat = categoryOptions.find((c) => c.value === i.category);
-            return <span className="text-xs text-slate-500">{cat?.label || i.category}</span>;
-          }},
-          { key: 'description', label: 'Descrição', render: (i) => <span className="text-xs text-slate-500 max-w-[200px] truncate block">{i.description || '—'}</span> },
-          { key: 'actions', label: 'Acções', sortable: false, className: 'w-24', render: (i) => (
-            <div className="flex gap-1">
-              <button onClick={() => openEdit(i)} className="p-2 text-slate-400 hover:text-blue-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Pencil className="w-3.5 h-3.5" /></button>
-              <button onClick={() => remove(i.id)} className="p-2 text-slate-400 hover:text-red-600 rounded-lg hover:bg-slate-100 cursor-pointer"><Trash2 className="w-3.5 h-3.5" /></button>
+      {items.length === 0 ? (
+        <div className="text-center py-12 text-sm text-slate-400">Nenhuma imagem encontrada.</div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {items.map((item) => (
+            <div key={item.id} className="bg-white rounded-2xl border border-slate-200 p-4 flex flex-col">
+              {item.imageUrl ? (
+                <img src={item.imageUrl} alt={item.title} className="w-full h-36 rounded-xl object-cover mb-3" />
+              ) : (
+                <div className="w-full h-36 rounded-xl bg-slate-100 mb-3 flex items-center justify-center text-slate-300 text-sm">{item.title[0]}</div>
+              )}
+              <div className="flex-1">
+                <h3 className="text-sm font-bold text-slate-900">{item.title}</h3>
+                <p className="text-[11px] text-slate-400 font-medium mt-0.5">
+                  {categoryOptions.find((c) => c.value === item.category)?.label || item.category}
+                </p>
+                {item.description && (
+                  <p className="text-xs text-slate-500 mt-1.5 truncate">{item.description}</p>
+                )}
+              </div>
+              <div className="flex gap-2 mt-3 pt-3 border-t border-slate-100">
+                <button onClick={() => openEdit(item)} className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-blue-100 hover:text-blue-600 transition-colors cursor-pointer">
+                  <Pencil className="w-3 h-3" /> Editar
+                </button>
+                <button onClick={() => remove(item.id)} className="flex-1 flex items-center justify-center gap-1 px-3 py-1.5 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-red-100 hover:text-red-600 transition-colors cursor-pointer">
+                  <Trash2 className="w-3 h-3" /> Excluir
+                </button>
+              </div>
             </div>
-          )},
-        ]}
-        data={items}
-        keyExtractor={(i) => i.id}
-        emptyMessage="Nenhuma imagem encontrada."
-      />
+          ))}
+        </div>
+      )}
+
+      <Pagination page={pagination.current_page} lastPage={pagination.last_page} total={pagination.total} from={pagination.from} to={pagination.to} onPageChange={setPage} />
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50" onClick={closeModal}>
@@ -135,18 +144,7 @@ export default function AdminGallery() {
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">Imagem</label>
-                <div className="flex items-center gap-3">
-                  {draft.imageUrl && <img src={draft.imageUrl} alt="" className="w-16 h-12 rounded-lg object-cover shrink-0" />}
-                  <label className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 cursor-pointer">
-                    <Upload className="w-3.5 h-3.5" />
-                    {uploading ? 'A enviar...' : 'Upload'}
-                    <input type="file" accept="image/*" onChange={handleUpload} className="hidden" />
-                  </label>
-                </div>
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">URL da Imagem</label>
-                <input value={draft.imageUrl} onChange={(e) => setDraft((p) => ({ ...p, imageUrl: e.target.value }))} placeholder="https://..." className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+                <FileUpload value={draft.imageUrl} onUpload={(url) => setDraft((p) => ({ ...p, imageUrl: url }))} showInput />
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">Descrição</label>
