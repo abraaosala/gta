@@ -14,6 +14,8 @@ import type {
   FeatureItem,
   TeamMember,
   GalleryItem,
+  AdminEstimatorDevice,
+  AdminEstimatorIssue,
 } from '../types.ts';
 import type { BusinessInfo } from './data-store.ts';
 
@@ -127,6 +129,40 @@ export async function logoutAPI(): Promise<void> {
 
 // ─── Public Helpers ──────────────────────────────────────
 
+// ─── Pagination ──────────────────────────────────────────
+
+export interface PaginatedResponse<T> {
+  data: T[];
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number | null;
+  to: number | null;
+}
+
+async function adminPaginatedGet<T>(path: string, page: number, mapper?: (item: Record<string, unknown>) => T): Promise<PaginatedResponse<T>> {
+  const res = await authFetch(`${path}?page=${page}`);
+  const json = await res.json() as {
+    data: Record<string, unknown>[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+  };
+  return {
+    data: mapper ? json.data.map(mapper) : json.data as unknown as T[],
+    current_page: json.current_page,
+    last_page: json.last_page,
+    per_page: json.per_page,
+    total: json.total,
+    from: json.from,
+    to: json.to,
+  };
+}
+
 // ─── Helpers ─────────────────────────────────────────────
 
 async function pubGet<T>(path: string): Promise<T> {
@@ -137,7 +173,7 @@ async function pubGet<T>(path: string): Promise<T> {
 
 async function authFetch(path: string, options: RequestInit = {}): Promise<Response> {
   const token = getStoredToken();
-  if (!token) throw new Error('No auth token');
+  if (!token) throw new Error('Sessão expirada');
 
   const res = await fetch(`${BASE}/admin${path}`, {
     ...options,
@@ -146,9 +182,26 @@ async function authFetch(path: string, options: RequestInit = {}): Promise<Respo
 
   if (res.status === 401) {
     clearToken();
+    throw new Error('Sessão expirada');
   }
 
-  if (!res.ok) throw new Error(`${options.method || 'GET'} ${path} failed: ${res.status}`);
+  if (!res.ok) {
+    let message = `Erro ${res.status}`;
+    try {
+      const body = await res.json() as Record<string, unknown>;
+      if (body.errors && typeof body.errors === 'object') {
+        const errs = body.errors as Record<string, string[]>;
+        const msgs = Object.values(errs).flat().filter(Boolean);
+        if (msgs.length > 0) message = msgs.join('; ');
+      } else if (body.message) {
+        message = body.message as string;
+      } else if (body.error) {
+        message = body.error as string;
+      }
+    } catch { /* ignore parse errors */ }
+    throw new Error(message);
+  }
+
   return res;
 }
 
@@ -216,7 +269,7 @@ function mapProductFromAPI(a: Record<string, unknown>): ProductItem {
     description: (a.description as string) || '',
     specs: typeof a.specs === 'string' ? JSON.parse(a.specs as string) : (a.specs as string[]) || [],
     inStock: (a.in_stock as boolean) ?? true,
-    condition: 'Recondicionado Grade A+',
+    condition: (a.condition as string) || 'Recondicionado Grade A+',
   };
 }
 
@@ -226,10 +279,12 @@ function mapProductToAPI(item: ProductItem): Record<string, unknown> {
     category: item.category,
     price: item.price,
     original_price: item.originalPrice || null,
+    icon: item.iconName,
     image: item.imageUrl,
     description: item.description,
     specs: item.specs || [],
     in_stock: item.inStock,
+    condition: item.condition,
   };
 }
 
@@ -387,91 +442,6 @@ export async function submitContact(data: { name: string; email: string; phone: 
   }
 }
 
-// ─── Public API ──────────────────────────────────────────
-
-export async function fetchServices(): Promise<ServiceItem[]> {
-  const data = await pubGet<Record<string, unknown>[]>('/services');
-  return data.map(mapServiceFromAPI);
-}
-
-export async function fetchProducts(): Promise<ProductItem[]> {
-  const data = await pubGet<Record<string, unknown>[]>('/products');
-  return data.map(mapProductFromAPI);
-}
-
-export async function fetchTestimonials(): Promise<TestimonialItem[]> {
-  const data = await pubGet<Record<string, unknown>[]>('/testimonials');
-  return data.map(mapTestimonialFromAPI);
-}
-
-export async function fetchFAQs(): Promise<FAQItem[]> {
-  const data = await pubGet<Record<string, unknown>[]>('/faqs');
-  return data.map(mapFAQFromAPI);
-}
-
-export async function fetchBrands(): Promise<BrandItem[]> {
-  const data = await pubGet<Record<string, unknown>[]>('/brands');
-  return data.map(mapBrandFromAPI);
-}
-
-export async function fetchProcess(): Promise<SupportStep[]> {
-  const data = await pubGet<Record<string, unknown>[]>('/process');
-  return data.map(mapProcessFromAPI);
-}
-
-export async function fetchEstimator(): Promise<EstimatorDevice[]> {
-  const [devices, issues] = await Promise.all([
-    pubGet<Record<string, unknown>[]>('/estimator/devices'),
-    pubGet<Record<string, unknown>[]>('/estimator/issues'),
-  ]);
-
-  const issuesByDeviceId: Record<string, { id: string; name: string; basePrice: number; estimatedTime: string }[]> = {};
-  for (const iss of issues) {
-    const did = (iss.deviceId as string) || (iss.estimatorDeviceId as string) || '';
-    if (!issuesByDeviceId[did]) issuesByDeviceId[did] = [];
-    issuesByDeviceId[did].push(iss as any);
-  }
-
-  return devices.map((dev) => {
-    const deviceIssues = issuesByDeviceId[dev.id as string] || [];
-    return {
-      id: dev.id as string,
-      label: (dev.name as string) || '',
-      brands: [],
-      issues: deviceIssues.map((iss) => ({
-        id: iss.id,
-        label: iss.name || '',
-        basePrice: iss.basePrice || 0,
-        estimatedTime: (iss as any).estimatedTime || '',
-      })),
-    };
-  });
-}
-
-export async function fetchFeatures(): Promise<FeatureItem[]> {
-  const data = await pubGet<Record<string, unknown>[]>('/features');
-  return data.map(mapFeatureFromAPI);
-}
-
-export async function fetchSettings(): Promise<Record<string, string>> {
-  return pubGet<Record<string, string>>('/settings');
-}
-
-export async function fetchInfo(): Promise<BusinessInfo> {
-  const data = await pubGet<Record<string, unknown>>('/info');
-  return mapInfoFromAPI(data);
-}
-
-export async function fetchTeam(): Promise<TeamMember[]> {
-  const data = await pubGet<Record<string, unknown>[]>('/team');
-  return data.map(mapTeamFromAPI);
-}
-
-export async function fetchGallery(): Promise<GalleryItem[]> {
-  const data = await pubGet<Record<string, unknown>[]>('/gallery');
-  return data.map(mapGalleryFromAPI);
-}
-
 // ─── Landing (único endpoint público) ─────────────────────
 
 export interface LandingData {
@@ -490,10 +460,7 @@ export interface LandingData {
 }
 
 export async function fetchLanding(): Promise<LandingData> {
-  const [raw, settings] = await Promise.all([
-    pubGet<Record<string, unknown>>('/landing'),
-    fetchSettings(),
-  ]);
+  const raw = await pubGet<Record<string, unknown>>('/landing');
   return {
     businessInfo: mapInfoFromAPI((raw.info as Record<string, unknown>) || {}),
     services: ((raw.services as Record<string, unknown>[]) || []).map(mapServiceFromAPI),
@@ -509,22 +476,21 @@ export async function fetchLanding(): Promise<LandingData> {
       issues: ((dev.issues as Record<string, unknown>[]) || []).map((iss) => ({
         id: iss.id as string,
         label: (iss.name as string) || '',
-        basePrice: (iss.basePrice as number) || 0,
-        estimatedTime: (iss.estimatedTime as string) || '',
+        basePrice: Number(iss.local_price) || 0,
+        estimatedTime: (iss.estimated_time as string) || '',
       })),
     })),
     features: ((raw.features as Record<string, unknown>[]) || []).map(mapFeatureFromAPI),
     team: ((raw.team as Record<string, unknown>[]) || []).map(mapTeamFromAPI),
     gallery: ((raw.gallery as Record<string, unknown>[]) || []).map(mapGalleryFromAPI),
-    settings,
+    settings: (raw.settings as Record<string, string>) || {},
   };
 }
 
 // ─── Admin API (autenticado) ─────────────────────────────
 
-export async function adminFetchServices(): Promise<ServiceItem[]> {
-  const data = await adminGet<Record<string, unknown>[]>('/services');
-  return data.map(mapServiceFromAPI);
+export async function adminFetchServices(page = 1): Promise<PaginatedResponse<ServiceItem>> {
+  return adminPaginatedGet('/services', page, mapServiceFromAPI);
 }
 
 export async function adminCreateService(item: ServiceItem): Promise<ServiceItem> {
@@ -541,9 +507,8 @@ export async function adminDeleteService(id: string): Promise<void> {
   await adminDelete(`/services/${id}`);
 }
 
-export async function adminFetchProducts(): Promise<ProductItem[]> {
-  const data = await adminGet<Record<string, unknown>[]>('/products');
-  return data.map(mapProductFromAPI);
+export async function adminFetchProducts(page = 1): Promise<PaginatedResponse<ProductItem>> {
+  return adminPaginatedGet('/products', page, mapProductFromAPI);
 }
 
 export async function adminCreateProduct(item: ProductItem): Promise<ProductItem> {
@@ -560,9 +525,8 @@ export async function adminDeleteProduct(id: string): Promise<void> {
   await adminDelete(`/products/${id}`);
 }
 
-export async function adminFetchTestimonials(): Promise<TestimonialItem[]> {
-  const data = await adminGet<Record<string, unknown>[]>('/testimonials');
-  return data.map(mapTestimonialFromAPI);
+export async function adminFetchTestimonials(page = 1): Promise<PaginatedResponse<TestimonialItem>> {
+  return adminPaginatedGet('/testimonials', page, mapTestimonialFromAPI);
 }
 
 export async function adminCreateTestimonial(item: TestimonialItem): Promise<TestimonialItem> {
@@ -579,9 +543,8 @@ export async function adminDeleteTestimonial(id: string): Promise<void> {
   await adminDelete(`/testimonials/${id}`);
 }
 
-export async function adminFetchFAQs(): Promise<FAQItem[]> {
-  const data = await adminGet<Record<string, unknown>[]>('/faqs');
-  return data.map(mapFAQFromAPI);
+export async function adminFetchFAQs(page = 1): Promise<PaginatedResponse<FAQItem>> {
+  return adminPaginatedGet('/faqs', page, mapFAQFromAPI);
 }
 
 export async function adminCreateFAQ(item: FAQItem): Promise<FAQItem> {
@@ -598,9 +561,8 @@ export async function adminDeleteFAQ(id: string): Promise<void> {
   await adminDelete(`/faqs/${id}`);
 }
 
-export async function adminFetchBrands(): Promise<BrandItem[]> {
-  const data = await adminGet<Record<string, unknown>[]>('/brands');
-  return data.map(mapBrandFromAPI);
+export async function adminFetchBrands(page = 1): Promise<PaginatedResponse<BrandItem>> {
+  return adminPaginatedGet('/brands', page, mapBrandFromAPI);
 }
 
 export async function adminCreateBrand(item: BrandItem): Promise<BrandItem> {
@@ -617,9 +579,8 @@ export async function adminDeleteBrand(id: string): Promise<void> {
   await adminDelete(`/brands/${id}`);
 }
 
-export async function adminFetchProcess(): Promise<SupportStep[]> {
-  const data = await adminGet<Record<string, unknown>[]>('/process');
-  return data.map(mapProcessFromAPI);
+export async function adminFetchProcess(page = 1): Promise<PaginatedResponse<SupportStep>> {
+  return adminPaginatedGet('/process', page, mapProcessFromAPI);
 }
 
 export async function adminCreateProcess(item: SupportStep): Promise<SupportStep> {
@@ -648,9 +609,8 @@ export async function adminUpdateInfo(info: BusinessInfo): Promise<BusinessInfo>
 
 // ─── Admin Team ───────────────────────────────────────────
 
-export async function adminFetchTeam(): Promise<TeamMember[]> {
-  const data = await adminGet<Record<string, unknown>[]>('/team');
-  return data.map(mapTeamFromAPI);
+export async function adminFetchTeam(page = 1): Promise<PaginatedResponse<TeamMember>> {
+  return adminPaginatedGet('/team', page, mapTeamFromAPI);
 }
 
 export async function adminCreateTeam(item: TeamMember): Promise<TeamMember> {
@@ -669,9 +629,8 @@ export async function adminDeleteTeam(id: string): Promise<void> {
 
 // ─── Admin Gallery ────────────────────────────────────────
 
-export async function adminFetchGallery(): Promise<GalleryItem[]> {
-  const data = await adminGet<Record<string, unknown>[]>('/gallery');
-  return data.map(mapGalleryFromAPI);
+export async function adminFetchGallery(page = 1): Promise<PaginatedResponse<GalleryItem>> {
+  return adminPaginatedGet('/gallery', page, mapGalleryFromAPI);
 }
 
 export async function adminCreateGallery(item: GalleryItem): Promise<GalleryItem> {
@@ -686,6 +645,51 @@ export async function adminUpdateGallery(id: string, item: GalleryItem): Promise
 
 export async function adminDeleteGallery(id: string): Promise<void> {
   await adminDelete(`/gallery/${id}`);
+}
+
+// ─── Admin Estimator ────────────────────────────────────────
+
+export async function adminFetchEstimatorDevices(page = 1): Promise<PaginatedResponse<AdminEstimatorDevice>> {
+  return adminPaginatedGet<AdminEstimatorDevice>('/estimator/devices', page);
+}
+
+export async function adminCreateEstimatorDevice(data: Partial<AdminEstimatorDevice>): Promise<AdminEstimatorDevice> {
+  return adminPost<AdminEstimatorDevice>('/estimator/devices', data);
+}
+
+export async function adminUpdateEstimatorDevice(id: string, data: Partial<AdminEstimatorDevice>): Promise<AdminEstimatorDevice> {
+  return adminPut<AdminEstimatorDevice>(`/estimator/devices/${id}`, data);
+}
+
+export async function adminDeleteEstimatorDevice(id: string): Promise<void> {
+  await adminDelete(`/estimator/devices/${id}`);
+}
+
+export async function adminFetchEstimatorIssues(page = 1, deviceId?: string): Promise<PaginatedResponse<AdminEstimatorIssue>> {
+  const query = deviceId ? `?device_id=${deviceId}&page=${page}` : `?page=${page}`;
+  const res = await authFetch(`/estimator/issues${query}`);
+  const json = await res.json() as {
+    data: AdminEstimatorIssue[];
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+  };
+  return json;
+}
+
+export async function adminCreateEstimatorIssue(data: Partial<AdminEstimatorIssue>): Promise<AdminEstimatorIssue> {
+  return adminPost<AdminEstimatorIssue>('/estimator/issues', data);
+}
+
+export async function adminUpdateEstimatorIssue(id: string, data: Partial<AdminEstimatorIssue>): Promise<AdminEstimatorIssue> {
+  return adminPut<AdminEstimatorIssue>(`/estimator/issues/${id}`, data);
+}
+
+export async function adminDeleteEstimatorIssue(id: string): Promise<void> {
+  await adminDelete(`/estimator/issues/${id}`);
 }
 
 // ─── Admin Settings ───────────────────────────────────────
@@ -715,11 +719,12 @@ export async function adminUploadImage(file: File): Promise<string> {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error((err as { error?: string }).error || 'Erro ao fazer upload');
+    const msg = (err as { message?: string }).message || (err as { error?: string }).error || 'Erro ao enviar imagem. Verifique o formato (JPEG, PNG, WebP, GIF) e o tamanho (máx. 5MB).';
+    throw new Error(msg);
   }
 
   const data = (await res.json()) as { url: string };
-  return data.url;
+  return resolveUrl(data.url);
 }
 
 // ─── Admin Contacts ──────────────────────────────────────
@@ -733,8 +738,8 @@ export interface AdminContact {
   createdAt: string;
 }
 
-export async function adminFetchContacts(): Promise<AdminContact[]> {
-  return adminGet<AdminContact[]>('/contacts');
+export async function adminFetchContacts(page = 1): Promise<PaginatedResponse<AdminContact>> {
+  return adminPaginatedGet<AdminContact>('/contacts', page);
 }
 
 export async function adminDeleteContact(id: string): Promise<void> {
@@ -753,8 +758,8 @@ export interface AdminUser {
   createdAt: string;
 }
 
-export async function adminFetchUsers(): Promise<AdminUser[]> {
-  return adminGet<AdminUser[]>('/users');
+export async function adminFetchUsers(page = 1): Promise<PaginatedResponse<AdminUser>> {
+  return adminPaginatedGet<AdminUser>('/users', page);
 }
 
 export async function adminFetchUserMe(): Promise<AdminUser> {

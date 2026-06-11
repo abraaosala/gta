@@ -55,6 +55,23 @@ export interface EstimatorDevice {
   issues: EstimatorIssue[];
 }
 
+export interface AdminEstimatorDevice {
+  id: string;
+  name: string;
+  icon: string;
+  base_price: number;
+}
+
+export interface AdminEstimatorIssue {
+  id: string;
+  device_id: string;
+  name: string;
+  base_price: number | null;
+  estimated_time: string | null;
+  price_multiplier: number;
+  local_price: number;
+}
+
 export interface FeatureItem {
   id: string;
   title: string;
