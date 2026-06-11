@@ -97,13 +97,12 @@ export async function loginAPI(email: string, password: string): Promise<LoginRe
 }
 
 export async function refreshTokenAPI(): Promise<LoginResponse> {
-  const refreshToken = getStoredRefreshToken();
-  if (!refreshToken) throw new Error('No refresh token');
+  const token = getStoredToken();
+  if (!token) throw new Error('Sessão expirada');
 
   const res = await fetch(`${BASE}/auth/refresh`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ refreshToken }),
+    headers: { Authorization: `Bearer ${token}` },
   });
   if (!res.ok) {
     clearToken();
@@ -111,7 +110,6 @@ export async function refreshTokenAPI(): Promise<LoginResponse> {
   }
   const data = (await res.json()) as LoginResponse;
   storeToken(data.accessToken);
-  storeRefreshToken(data.refreshToken);
   return data;
 }
 

@@ -27,13 +27,17 @@ import {
   Star,
   ShieldCheck,
 } from 'lucide-react';
-import { isAuthenticated, logout } from '../lib/auth.ts';
+import { isAuthenticated, refreshAuth, logout } from '../lib/auth.ts';
 import { useData } from '../contexts/DataContext.tsx';
 import { useToast } from '../lib/toast.tsx';
 
 export const Route = createFileRoute('/admin')({
-  beforeLoad: () => {
+  beforeLoad: async () => {
     if (!isAuthenticated()) {
+      throw redirect({ to: '/login' });
+    }
+    const fresh = await refreshAuth();
+    if (!fresh) {
       throw redirect({ to: '/login' });
     }
   },
