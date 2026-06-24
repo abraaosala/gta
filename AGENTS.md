@@ -49,3 +49,31 @@ gta/
 - CSS uses Tailwind utility classes extensively, with custom glass/tech styles in `index.css`.
 - All files have `SPDX-License-Identifier: Apache-2.0` header.
 - `tsc --noEmit` is the only type-check command — run before committing.
+
+## Git Conventions
+
+### Branch Naming
+```
+feature/<descricao-curta>    — funcionalidades novas
+fix/<descricao-curta>         — correções de bugs
+hotfix/<descricao>            — urgências em produção
+release/<versao>              — releases
+```
+
+### Conventional Commits
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+Tipos: `feat` (minor), `fix` (patch), `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+
+- **Breaking change**: adicionar `!` após o tipo ou `BREAKING CHANGE:` no footer
+- **Scope**: opcional, usar kebab-case: `feat(api):`, `fix(ui):`
+- **Subject**: imperativo, presente, < 72 caracteres, sem ponto final
+- **Commits atómicos**: uma mudança lógica por commit
+- **Assinar sempre**: `git commit -S --signoff`
+- **Template** em `.gitmessage` — usar com `git config commit.template .gitmessage`

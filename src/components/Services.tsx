@@ -5,17 +5,26 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Smartphone, BatteryCharging, Cpu, Plug, Laptop, CloudLightning, ArrowRight, Check } from 'lucide-react';
+import {
+  Smartphone, BatteryCharging, Cpu, Plug, Laptop, CloudLightning,
+  Tablet, Monitor, Watch, Gamepad, Camera, Headphones, Speaker, Printer,
+  HardDrive, Server, BatteryWarning, Zap, Wifi, Bluetooth, Signal, Cloud,
+  Shield, Lock, Search, Eye, Hammer, Wrench, Settings, Sliders,
+  RefreshCw, Download, Upload, Phone, MessageCircle, Mail,
+  Microchip, CircuitBoard, Fan, Thermometer, Keyboard, Mouse, Disc, Usb,
+  Radio, Tv, ArrowRight, Check,
+} from 'lucide-react';
 import { useData } from '../contexts/DataContext.tsx';
 
 // Dynamic Lucide selection mapping
 const IconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
-  Smartphone,
-  BatteryCharging,
-  Cpu,
-  Plug,
-  Laptop,
-  CloudLightning,
+  Smartphone, BatteryCharging, Cpu, Plug, Laptop, CloudLightning,
+  Tablet, Monitor, Watch, Gamepad, Camera, Headphones, Speaker, Printer,
+  HardDrive, Server, BatteryWarning, Zap, Wifi, Bluetooth, Signal, Cloud,
+  Shield, Lock, Search, Eye, Hammer, Wrench, Settings, Sliders,
+  RefreshCw, Download, Upload, Phone, MessageCircle, Mail,
+  Microchip, CircuitBoard, Fan, Thermometer, Keyboard, Mouse, Disc, Usb,
+  Radio, Tv,
 };
 
 interface ServicesProps {
