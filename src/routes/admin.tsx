@@ -250,7 +250,7 @@ function AdminLayout() {
   return (
     <div className="min-h-screen flex bg-slate-50">
       {/* Sidebar */}
-      <aside className="hidden lg:flex lg:w-60 xl:w-64 bg-slate-950 flex-col relative overflow-hidden">
+      <aside className="hidden lg:flex lg:w-60 xl:w-64 bg-slate-950 flex-col relative overflow-hidden shrink-0">
         <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-20" />
 
         <div className="relative z-10 flex flex-col h-full">
@@ -308,7 +308,7 @@ function AdminLayout() {
       </aside>
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col min-h-screen">
+      <div className="flex-1 flex flex-col min-h-screen min-w-0">
         {/* Mobile header + top bar */}
         <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
           <div className="flex items-center justify-between h-14 px-4 sm:px-6">

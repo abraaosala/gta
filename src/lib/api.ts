@@ -239,8 +239,8 @@ function mapServiceFromAPI(a: Record<string, unknown>): ServiceItem {
     iconName: (a.icon as string) || 'Smartphone',
     description: (a.description as string) || '',
     features: typeof a.features === 'string' ? JSON.parse(a.features as string) : (a.features as string[]) || [],
-    priceRange: (a.priceRange as string) || '',
-    avgTime: (a.avgTime as string) || '',
+    priceRange: (a.price_range as string) || '',
+    avgTime: (a.avg_time as string) || '',
   };
 }
 
@@ -249,9 +249,9 @@ function mapServiceToAPI(item: ServiceItem): Record<string, unknown> {
     title: item.title,
     icon: item.iconName,
     description: item.description,
-    features: JSON.stringify(item.features),
-    priceRange: item.priceRange,
-    avgTime: item.avgTime,
+    features: item.features,
+    price_range: item.priceRange,
+    avg_time: item.avgTime,
   };
 }
 

@@ -85,10 +85,10 @@ function AdminDashboard() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3 sm:gap-4 mb-10">
         {loading
           ? Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} className="bg-white rounded-2xl border border-slate-200 p-5 animate-pulse">
+              <div key={i} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 animate-pulse">
                 <div className="w-10 h-10 rounded-xl bg-slate-100 mb-3" />
                 <div className="h-7 w-16 bg-slate-100 rounded mb-1" />
                 <div className="h-4 w-20 bg-slate-50 rounded" />
@@ -97,7 +97,7 @@ function AdminDashboard() {
           : statCards.map((stat) => {
               const Icon = stat.icon;
               return (
-                <div key={stat.key} className="bg-white rounded-2xl border border-slate-200 p-5 text-left">
+                <div key={stat.key} className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 text-left">
                   <div className={`p-2.5 rounded-xl bg-slate-50 inline-flex mb-3 ${stat.color}`}>
                     <Icon className="w-5 h-5" />
                   </div>

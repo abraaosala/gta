@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ComponentType } from 'react';
 import type { ServiceItem } from '../../types.ts';
 import {
   adminFetchServices,
@@ -11,7 +11,16 @@ import {
   adminUpdateService,
   adminDeleteService,
 } from '../../lib/api.ts';
-import { Plus, Pencil, Trash2, RotateCcw, X } from 'lucide-react';
+import {
+  Plus, Pencil, Trash2, RotateCcw, X,
+  Smartphone, BatteryCharging, Cpu, Plug, Laptop, CloudLightning,
+  Tablet, Monitor, Watch, Gamepad, Camera, Headphones, Speaker, Printer,
+  HardDrive, Server, BatteryWarning, Zap, Wifi, Bluetooth, Signal, Cloud,
+  Shield, Lock, Search, Eye, Hammer, Wrench, Settings, Sliders,
+  RefreshCw, Download, Upload, Phone, MessageCircle, Mail,
+  Microchip, CircuitBoard, Fan, Thermometer, Keyboard, Mouse, Disc, Usb,
+  Radio, Tv,
+} from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
 import DataTable from './DataTable.tsx';
 import type { Column } from './DataTable.tsx';
@@ -24,12 +33,24 @@ const actionBtn = (onEdit: () => void, onDelete: () => void) => (
   </div>
 );
 
-const iconRender = (iconName: string) =>
-  iconName === 'BatteryCharging' ? '🔋' : iconName === 'Cpu' ? '🔲' : iconName === 'Plug' ? '🔌' : iconName === 'Laptop' ? '💻' : iconName === 'CloudLightning' ? '☁️' : '📱';
+const ADMIN_ICON_MAP: Record<string, ComponentType<{ className?: string }>> = {
+  Smartphone, BatteryCharging, Cpu, Plug, Laptop, CloudLightning,
+  Tablet, Monitor, Watch, Gamepad, Camera, Headphones, Speaker, Printer,
+  HardDrive, Server, BatteryWarning, Zap, Wifi, Bluetooth, Signal, Cloud,
+  Shield, Lock, Search, Eye, Hammer, Wrench, Settings, Sliders,
+  RefreshCw, Download, Upload, Phone, MessageCircle, Mail,
+  Microchip, CircuitBoard, Fan, Thermometer, Keyboard, Mouse, Disc, Usb,
+  Radio, Tv,
+};
+
+const ICONS = Object.keys(ADMIN_ICON_MAP);
 
 function serviceColumns(openEdit: (item: any) => void, remove: (id: string) => void): Column<any>[] {
   return [
-    { key: 'iconName', label: 'Ícone', render: (i) => <span className="text-lg">{iconRender(i.iconName)}</span> },
+    { key: 'iconName', label: 'Ícone', render: (i) => {
+      const IconComp = ADMIN_ICON_MAP[i.iconName];
+      return IconComp ? <IconComp className="w-5 h-5 text-slate-600" /> : <span className="text-lg">📱</span>;
+    } },
     { key: 'title', label: 'Título', render: (i) => <span className="font-medium">{i.title}</span> },
     { key: 'priceRange', label: 'Preço', render: (i) => i.priceRange },
     { key: 'avgTime', label: 'Tempo', render: (i) => i.avgTime },
@@ -37,14 +58,12 @@ function serviceColumns(openEdit: (item: any) => void, remove: (id: string) => v
   ];
 }
 
-const ICONS = ['Smartphone', 'BatteryCharging', 'Cpu', 'Plug', 'Laptop', 'CloudLightning'];
-
 const empty = (): ServiceItem => ({
   id: crypto.randomUUID(),
   title: '',
   iconName: 'Smartphone',
   description: '',
-  features: [''],
+  features: [],
   priceRange: '',
   avgTime: '',
 });
@@ -56,6 +75,7 @@ export default function AdminServices() {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<ServiceItem>(empty());
+  const [newFeature, setNewFeature] = useState('');
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ current_page: 1, last_page: 1, total: 0, from: null as number | null, to: null as number | null });
 
@@ -81,6 +101,15 @@ export default function AdminServices() {
   const closeModal = () => {
     setModalOpen(false);
     setEditingId(null);
+    setNewFeature('');
+  };
+
+  const addFeature = () => {
+    const trimmed = newFeature.trim();
+    if (trimmed) {
+      setDraft((p) => ({ ...p, features: [...p.features, trimmed] }));
+      setNewFeature('');
+    }
   };
 
   const save = async () => {
@@ -164,13 +193,55 @@ export default function AdminServices() {
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">Ícone</label>
-                <select value={draft.iconName} onChange={(e) => setDraft((p) => ({ ...p, iconName: e.target.value }))} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm">
-                  {ICONS.map((ic) => <option key={ic} value={ic}>{ic}</option>)}
-                </select>
+                <div className="grid grid-cols-8 gap-1.5 max-h-48 overflow-y-auto p-2 rounded-lg border border-slate-200">
+                  {ICONS.map((ic) => {
+                    const Icn = ADMIN_ICON_MAP[ic];
+                    const selected = draft.iconName === ic;
+                    return (
+                      <button
+                        key={ic}
+                        type="button"
+                        onClick={() => setDraft((p) => ({ ...p, iconName: ic }))}
+                        title={ic}
+                        className={`flex items-center justify-center p-2 rounded-lg cursor-pointer transition-all ${
+                          selected ? 'bg-blue-100 ring-2 ring-blue-500' : 'hover:bg-slate-100'
+                        }`}
+                      >
+                        {Icn ? <Icn className="w-5 h-5" /> : <span className="text-lg">📱</span>}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">Características (uma por linha)</label>
-                <textarea value={draft.features.join('\n')} onChange={(e) => setDraft((p) => ({ ...p, features: e.target.value.split('\n').filter(Boolean) }))} rows={3} className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm resize-none" />
+                <label className="block text-[10px] font-bold text-slate-400 font-mono uppercase mb-1.5">Características</label>
+                <div className="flex flex-wrap gap-1.5 mb-2">
+                  {draft.features.map((f, i) => (
+                    <span key={i} className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium bg-blue-50 text-blue-700 rounded-full">
+                      {f}
+                      <button type="button" onClick={() => setDraft((p) => ({ ...p, features: p.features.filter((_, j) => j !== i) }))} className="cursor-pointer">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-1.5">
+                  <input
+                    value={newFeature}
+                    onChange={(e) => setNewFeature(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addFeature(); } }}
+                    placeholder="Adicionar característica"
+                    className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={addFeature}
+                    disabled={!newFeature.trim()}
+                    className="px-3 py-2 text-xs font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-500 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
 

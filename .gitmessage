@@ -1,0 +1,11 @@
+# <type>(<scope>): <subject>
+# |<----  Using a Maximum Of 50 Characters  ---->|
+
+# Explain why this change is being made
+# |<----   Try To Limit Each Line to a Maximum Of 72 Characters   ---->|
+
+# Type: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+# Scope: optional, e.g. (api), (ui), (auth)
+
+# Breaking change: add ! after type or BREAKING CHANGE: in footer
+# Footer: BREAKING CHANGE:, Fixes #issue, Closes #issue
