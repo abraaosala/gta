@@ -425,7 +425,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen flex bg-slate-50">
       {/* Sidebar */}
-      <aside className="hidden lg:flex lg:w-60 xl:w-64 bg-slate-950 flex-col sticky top-0 h-dvh overflow-hidden">
+      <aside className="hidden lg:flex lg:w-60 xl:w-64 bg-slate-950 flex-col sticky top-0 h-screen supports-[height:100dvh]:h-dvh overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-20" />
 
         <div className="relative z-10 flex flex-col h-full">
@@ -533,7 +533,7 @@ export default function AdminDashboard() {
 
           {/* Mobile menu dropdown */}
           {mobileMenuOpen && (
-            <div className="lg:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1">
+            <div className="lg:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1 max-h-[calc(100dvh-3.5rem)] overflow-y-auto">
               <button
                 onClick={() => selectSection('dashboard')}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-colors cursor-pointer text-left ${
