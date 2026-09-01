@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useData } from '../contexts/DataContext.tsx';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import SectionHeader from './SectionHeader.tsx';
 
 const categoryLabels: Record<string, string> = {
   'antes-depois': 'Antes & Depois',
@@ -44,7 +45,7 @@ export default function Gallery() {
   };
 
   return (
-    <section id="galeria" className="py-20 bg-slate-100/30 tech-grid-bg transition-all">
+    <section id="galeria" className="py-20 bg-white tech-grid-bg transition-all">
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -52,17 +53,12 @@ export default function Gallery() {
         transition={{ duration: 0.7, ease: 'easeOut' }}
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-            GALERIA
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900">
-            O nosso laboratório e resultados
-          </h2>
-          <p className="text-slate-500 mt-4 text-md">
-            Veja o antes e depois das reparações, o nosso espaço de trabalho e a equipa em acção.
-          </p>
-        </div>
+        <SectionHeader
+          className="mb-12"
+          badge="GALERIA"
+          title="O nosso laboratório e resultados"
+          description="Veja o antes e depois das reparações, o nosso espaço de trabalho e a equipa em acção."
+        />
 
         {/* Filter Buttons */}
         <div className="flex flex-wrap justify-center gap-2 mb-10">

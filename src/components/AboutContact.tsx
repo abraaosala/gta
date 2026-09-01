@@ -9,6 +9,7 @@ import { useData } from '../contexts/DataContext.tsx';
 import { MapPin, Phone, Mail, Clock, ShieldCheck, Send } from 'lucide-react';
 import { submitContact } from '../lib/api.ts';
 import { useToast } from '../lib/toast.tsx';
+import SectionHeader from './SectionHeader.tsx';
 
 export default function AboutContact() {
   const toast = useToast();
@@ -45,7 +46,7 @@ export default function AboutContact() {
   };
 
   return (
-    <section id="contacto" className="py-20 bg-white transition-all border-t border-slate-150/40 relative">
+    <section id="contacto" className="py-20 bg-slate-50 transition-all relative">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -64,17 +65,12 @@ export default function AboutContact() {
             transition={{ duration: 0.7, ease: 'easeOut' }}
             className="lg:col-span-5 flex flex-col space-y-8 text-left"
           >
-            <div>
-              <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-                QUEM SOMOS & CONTACTO
-              </span>
-              <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900 ">
-                Os seus aparelhos em mãos de confiança
-              </h2>
-              <p className="mt-4 text-slate-500 text-sm leading-relaxed">
-                A GTA-Tech nasceu em Cabinda com a missão de elevar a fasquia da assistência técnica em Angola. Focamo-nos na excelência técnica, na transparência de orçamentos e em assegurar que cada cliente sai com o telemóvel ou portátil perfeitamente operacional.
-              </p>
-            </div>
+            <SectionHeader
+              align="left"
+              badge="QUEM SOMOS & CONTACTO"
+              title="Os seus aparelhos em mãos de confiança"
+              description="A GTA-Tech nasceu em Cabinda com a missão de elevar a fasquia da assistência técnica em Angola. Focamo-nos na excelência técnica, na transparência de orçamentos e em assegurar que cada cliente sai com o telemóvel ou portátil perfeitamente operacional."
+            />
 
             {/* Bullet achievements lists */}
             <div className="space-y-3.5">

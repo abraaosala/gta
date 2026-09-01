@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { ShoppingBag, Smartphone, Laptop, Plug, BatteryCharging, Search, Sparkles, MessageCircle, Info, X } from 'lucide-react';
 import { useData } from '../contexts/DataContext.tsx';
 import { ProductItem } from '../types.ts';
+import SectionHeader from './SectionHeader.tsx';
 
 const CategoryIconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
   smartphones: Smartphone,
@@ -54,7 +55,7 @@ export default function SalesStore() {
   }, [selectedProduct, closeModal]);
 
   return (
-    <section id="vendas" className="py-20 bg-slate-50 transition-all border-t border-slate-200/50 relative">
+    <section id="vendas" className="py-20 bg-slate-50 transition-all relative">
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -64,31 +65,26 @@ export default function SalesStore() {
       >
 
         {/* Section Title */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-12">
-          <div className="text-left max-w-2xl">
-            <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-              SISTEMA DE VENDAS & LOJA
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900 ">
-              Equipamentos Recondicionados Premium & Acessórios
-            </h2>
-            <p className="mt-3 text-sm text-slate-500 ">
-              Todos os nossos telemóveis e portáteis são testados em múltiplos pontos, higienizados e entregues com garantia certificada de funcionamento.
-            </p>
-          </div>
-          <div className="mt-6 md:mt-0 relative w-full md:w-80">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="h-4 w-4 text-slate-400" />
+        <SectionHeader
+          align="split"
+          badge="SISTEMA DE VENDAS & LOJA"
+          title="Equipamentos Recondicionados Premium & Acessórios"
+          description="Todos os nossos telemóveis e portáteis são testados em múltiplos pontos, higienizados e entregues com garantia certificada de funcionamento."
+          actions={
+            <div className="relative w-full md:w-80">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <Search className="h-4 w-4 text-slate-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Pesquisar modelo, marca..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="block w-full rounded-2xl py-3 pl-10 pr-4 text-sm font-medium bg-white/70 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Pesquisar modelo, marca..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="block w-full rounded-2xl py-3 pl-10 pr-4 text-sm font-medium bg-white/70 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-blue transition-all"
-            />
-          </div>
-        </div>
+          }
+        />
 
         {/* Filter Badges Categories */}
         <div className="flex flex-wrap gap-2.5 mb-10 max-w-xl">

@@ -6,11 +6,12 @@
 import { motion } from 'motion/react';
 import { useData } from '../contexts/DataContext.tsx';
 import { Star, Quote, CheckCircle2 } from 'lucide-react';
+import SectionHeader from './SectionHeader.tsx';
 
 export default function Testimonials() {
   const { testimonials } = useData();
   return (
-    <section id="depoimentos" className="py-20 bg-slate-100/30 tech-grid-bg transition-all">
+    <section id="depoimentos" className="py-20 bg-slate-50 tech-grid-bg transition-all">
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -20,17 +21,11 @@ export default function Testimonials() {
       >
 
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-            EXPERIÊNCIAS COMPARTILHADAS
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900 ">
-            O que dizem os nossos clientes em Cabinda?
-          </h2>
-          <p className="text-slate-500 mt-4 text-md">
-            A nossa prioridade número um é a satisfação absoluta de quem nos confia os seus valiosos equipamentos de trabalho e comunicação.
-          </p>
-        </div>
+        <SectionHeader
+          badge="EXPERIÊNCIAS COMPARTILHADAS"
+          title="O que dizem os nossos clientes em Cabinda?"
+          description="A nossa prioridade número um é a satisfação absoluta de quem nos confia os seus valiosos equipamentos de trabalho e comunicação."
+        />
 
         {/* Grid stack */}
         <motion.div

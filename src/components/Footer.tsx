@@ -18,7 +18,7 @@ export default function Footer() {
   }, [businessInfo.logoUrl]);
 
   return (
-    <footer id="main-footer" className="bg-slate-950 text-slate-400 pt-16 pb-8 border-t border-slate-900 transition-all font-sans">
+    <footer id="main-footer" className="bg-slate-950 text-slate-400 pt-16 pb-8 transition-all font-sans">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}

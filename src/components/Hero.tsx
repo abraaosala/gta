@@ -44,7 +44,7 @@ const HERO_SLIDES: HeroSlide[] = [
         Danos por água, queda ou <span className="text-slate-500 italic">curto-circuito?</span> <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600">Tecnologia de ponta</span>
       </>
     ),
-    description: 'Microsoldadura avançada, recuperação de dados e reparação de placas-mãe com equipamento de laboratório de precisão. 90 dias de garantia em todas as intervenções.',
+    description: 'Micro soldagem avançada, recuperação de dados e reparação de placas-mãe com equipamento de laboratório de precisão. 90 dias de garantia em todas as intervenções.',
   },
 ];
 

@@ -7,6 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useData } from '../contexts/DataContext.tsx';
 import { Calculator, MessageCircle, CalendarCheck, HelpCircle, Check, Sparkles, Smartphone, Laptop, Tablet, AlertCircle } from 'lucide-react';
+import SectionHeader from './SectionHeader.tsx';
 
 interface InteractiveEstimatorProps {
   preselectedServiceId: string | null;
@@ -134,17 +135,11 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative"
       >
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-            ESTIMATIVAS COERENTES
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900 ">
-            Calculador de Orçamentos de Reparação
-          </h2>
-          <p className="text-slate-500 mt-4 text-md">
-            Escolha as especificidades do seu aparelho abaixo e obtenha um diagnóstico inicial imediato de tempo e valores médios.
-          </p>
-        </div>
+        <SectionHeader
+          badge="ESTIMATIVAS COERENTES"
+          title="Calculador de Orçamentos de Reparação"
+          description="Escolha as especificidades do seu aparelho abaixo e obtenha um diagnóstico inicial imediato de tempo e valores médios."
+        />
 
         {/* Dynamic content grid setup */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">

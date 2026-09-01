@@ -57,3 +57,41 @@ export function serializeVisibility(v: SectionVisibility): string {
 export const DEFAULT_VISIBILITY_JSON = serializeVisibility(
   Object.fromEntries(SECTION_IDS.map((id) => [id, true])) as SectionVisibility,
 );
+
+/**
+ * Cor de fundo de cada secção. Centralizada aqui para que os divisores entre
+ * secções sejam derivados destes valores (evita hex hardcoded e ondas órfãs).
+ * `null` significa "sem fundo próprio" (ex.: Hero usa imagem/overlay branco).
+ */
+export const SECTION_BG: Record<SectionId, string | null> = {
+  hero: null,
+  brands: '#ffffff',
+  services: '#ffffff',
+  salesStore: '#f8fafc',
+  features: '#ffffff',
+  process: '#f8fafc',
+  estimator: '#f8fafc',
+  testimonials: '#f8fafc',
+  faq: '#ffffff',
+  team: '#f8fafc',
+  gallery: '#ffffff',
+  aboutContact: '#f8fafc',
+};
+
+/**
+ * Cor de origem do divisor entre duas secções consecutivas: é a cor da secção
+ * de cima. Devolve `null` quando não deve haver divisor — quando as secções
+ * partilham a mesma cor de fundo (não há transição para marcar) ou quando
+ * qualquer uma das secções de fronteira não tem cor própria.
+ */
+export function dividerFrom(
+  above: SectionId,
+  below: SectionId,
+  visibility: SectionVisibility,
+): string | null {
+  if (!visibility[above] || !visibility[below]) return null;
+  const from = SECTION_BG[above];
+  const to = SECTION_BG[below];
+  if (from == null || to == null || from === to) return null;
+  return from;
+}
