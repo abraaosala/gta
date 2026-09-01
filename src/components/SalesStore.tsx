@@ -32,7 +32,7 @@ export default function SalesStore() {
         product.specs?.some(spec => spec.toLowerCase().includes(searchQuery.toLowerCase()));
       return matchesCategory && matchesSearch;
     });
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, products]);
 
   const handleWhatsappReservation = (product: ProductItem) => {
     const message = encodeURIComponent(
