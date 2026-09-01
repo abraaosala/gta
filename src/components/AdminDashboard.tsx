@@ -425,7 +425,7 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen flex bg-slate-50">
       {/* Sidebar */}
-      <aside className="hidden lg:flex lg:w-60 xl:w-64 bg-slate-950 flex-col relative overflow-hidden">
+      <aside className="hidden lg:flex lg:w-60 xl:w-64 bg-slate-950 flex-col sticky top-0 h-screen overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px] opacity-20" />
 
         <div className="relative z-10 flex flex-col h-full">
