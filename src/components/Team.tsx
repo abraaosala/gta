@@ -6,6 +6,7 @@
 import { motion } from 'motion/react';
 import { useData } from '../contexts/DataContext.tsx';
 import { Facebook, Instagram, Linkedin, MessageCircle } from 'lucide-react';
+import SectionHeader from './SectionHeader.tsx';
 
 const socialIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   facebook: Facebook,
@@ -24,7 +25,7 @@ const socialColorMap: Record<string, string> = {
 export default function Team() {
   const { team } = useData();
   return (
-    <section id="equipa" className="py-20 bg-white transition-all">
+    <section id="equipa" className="py-20 bg-slate-50 transition-all">
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -32,17 +33,11 @@ export default function Team() {
         transition={{ duration: 0.7, ease: 'easeOut' }}
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-            EQUIPA DEDICADA
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900">
-            Conheça a nossa equipa de especialistas
-          </h2>
-          <p className="text-slate-500 mt-4 text-md">
-            Profissionais certificados e apaixonados por tecnologia, prontos para devolver a vida ao seu dispositivo.
-          </p>
-        </div>
+        <SectionHeader
+          badge="EQUIPA DEDICADA"
+          title="Conheça a nossa equipa de especialistas"
+          description="Profissionais certificados e apaixonados por tecnologia, prontos para devolver a vida ao seu dispositivo."
+        />
 
         <motion.div
           initial="hidden"

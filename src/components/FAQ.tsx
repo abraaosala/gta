@@ -7,6 +7,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useData } from '../contexts/DataContext.tsx';
 import { Plus, Minus, HelpCircle } from 'lucide-react';
+import SectionHeader from './SectionHeader.tsx';
 
 export default function FAQ() {
   const { faqs } = useData();
@@ -27,17 +28,11 @@ export default function FAQ() {
       >
 
         {/* Section Header */}
-        <div className="text-center mb-16">
-          <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-            DÚVIDAS FREQUENTES
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900 ">
-            Perguntas Frequentes
-          </h2>
-          <p className="text-slate-500 mt-4 text-sm max-w-xl mx-auto">
-            Tem alguma questão sobre o nosso laboratório em Cabinda e os nossos serviços? Encontre as respostas rápidas abaixo.
-          </p>
-        </div>
+        <SectionHeader
+          badge="DÚVIDAS FREQUENTES"
+          title="Perguntas Frequentes"
+          description="Tem alguma questão sobre o nosso laboratório em Cabinda e os nossos serviços? Encontre as respostas rápidas abaixo."
+        />
 
         {/* Accordion Stack */}
         <motion.div

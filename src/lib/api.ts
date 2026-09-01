@@ -261,7 +261,7 @@ function mapProductFromAPI(a: Record<string, unknown>): ProductItem {
     name: a.name as string,
     category: (a.category as ProductItem['category']) || 'smartphones',
     price: (a.price as number) || 0,
-    originalPrice: a.originalPrice as number | undefined,
+    originalPrice: (a.original_price as number | undefined) ?? (a.originalPrice as number | undefined),
     iconName: (a.icon as string) || 'Smartphone',
     imageUrl: resolveUrl((a.image as string) || ''),
     description: (a.description as string) || '',

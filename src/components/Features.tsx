@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useData } from '../contexts/DataContext.tsx';
+import SectionHeader from './SectionHeader.tsx';
 
 const iconMap: Record<string, LucideIcon> = {
   Timer, HeartHandshake, ShieldCheck, MapPin, Award, CheckCircle,
@@ -32,7 +33,7 @@ export default function Features() {
   const { features } = useData();
 
   return (
-    <section id="features" className="py-20 bg-slate-100/50 relative transition-all">
+    <section id="features" className="py-20 bg-white relative transition-all">
       <motion.div
         initial={{ opacity: 0, y: 60 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -42,17 +43,11 @@ export default function Features() {
       >
 
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-            DIFERENCIAL COMPROVADO
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900 ">
-            Porquê escolher a GTA-Tech para o seu dispositivo?
-          </h2>
-          <p className="text-slate-500 mt-4 text-md">
-            Sabemos o quão indispensável o seu telemóvel e computador são no seu dia a dia. Por isso, organizámos uma estrutura focada em dar a melhor resposta com confiança absoluta.
-          </p>
-        </div>
+        <SectionHeader
+          badge="DIFERENCIAL COMPROVADO"
+          title="Porquê escolher a GTA-Tech para o seu dispositivo?"
+          description="Sabemos o quão indispensável o seu telemóvel e computador são no seu dia a dia. Por isso, organizámos uma estrutura focada em dar a melhor resposta com confiança absoluta."
+        />
 
         {/* Features Content Grid */}
         <motion.div
@@ -104,7 +99,7 @@ export default function Features() {
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-8 space-y-2">
-              <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight">
+              <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-white">
                 Garantia escrita de 90 dias após o reparo
               </h3>
               <p className="text-slate-300 text-sm">

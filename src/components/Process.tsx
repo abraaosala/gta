@@ -6,6 +6,7 @@
 import { motion } from 'motion/react';
 import { useData } from '../contexts/DataContext.tsx';
 import { Check, ClipboardList, Settings, Sparkles, Truck } from 'lucide-react';
+import SectionHeader from './SectionHeader.tsx';
 
 const StepIcons = [
   <ClipboardList className="w-6 h-6" key="clip" />,
@@ -27,17 +28,11 @@ export default function Process() {
       >
 
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-            workflow transparente
-          </span>
-          <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900 ">
-            Como funciona o processo de reparação?
-          </h2>
-          <p className="text-slate-500 mt-4 text-md">
-            Desenhámos uma metodologia transparente e ágil para que saiba exatamente em que fase de tratamento se encontra o seu telemóvel ou computador.
-          </p>
-        </div>
+        <SectionHeader
+          badge="WORKFLOW TRANSPARENTE"
+          title="Como funciona o processo de reparação?"
+          description="Desenhámos uma metodologia transparente e ágil para que saiba exatamente em que fase de tratamento se encontra o seu telemóvel ou computador."
+        />
 
         {/* Dynamic Connected Node Stepper */}
         <div className="relative">

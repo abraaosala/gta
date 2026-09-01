@@ -300,13 +300,13 @@ function DashboardHome() {
 
   useEffect(() => {
     Promise.all([
-      adminFetchServices().then((r) => r.length),
-      adminFetchProducts().then((r) => r.length),
-      adminFetchTestimonials().then((r) => r.length),
-      adminFetchTeam().then((r) => r.length),
-      adminFetchGallery().then((r) => r.length),
-      adminFetchBrands().then((r) => r.length),
-      adminFetchContacts().then((r) => r),
+      adminFetchServices().then((r) => r.total),
+      adminFetchProducts().then((r) => r.total),
+      adminFetchTestimonials().then((r) => r.total),
+      adminFetchTeam().then((r) => r.total),
+      adminFetchGallery().then((r) => r.total),
+      adminFetchBrands().then((r) => r.total),
+      adminFetchContacts().then((r) => r.data),
     ])
       .then(([services, products, testimonials, team, gallery, brands, contacts]) => {
         setStats({services, products, testimonials, team, gallery, brands, contacts: contacts.length});

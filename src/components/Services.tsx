@@ -15,6 +15,7 @@ import {
   Radio, Tv, ArrowRight, Check,
 } from 'lucide-react';
 import { useData } from '../contexts/DataContext.tsx';
+import SectionHeader from './SectionHeader.tsx';
 
 // Dynamic Lucide selection mapping
 const IconMap: { [key: string]: React.ComponentType<{ className?: string }> } = {
@@ -44,21 +45,17 @@ export default function Services({ onSelectService }: ServicesProps) {
       >
 
         {/* Section Title */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-16">
-          <div className="text-left max-w-2xl">
-            <span className="text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full">
-              SERVIÇOS DE EXCELÊNCIA
-            </span>
-            <h2 className="text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900 ">
-              Especialistas qualificados em reparações de hardware e software
-            </h2>
-          </div>
-          <div className="mt-4 md:mt-0 text-left">
+        <SectionHeader
+          align="split"
+          className="mb-16"
+          badge="SERVIÇOS DE EXCELÊNCIA"
+          title="Especialistas qualificados em reparações de hardware e software"
+          actions={
             <p className="text-slate-500 text-sm max-w-sm md:text-right">
               Utilizamos técnicas avançadas e ferramentas de precisão cirúrgica para assegurar que o seu aparelho volta a funcionar a 100%.
             </p>
-          </div>
-        </div>
+          }
+        />
 
         {/* Services Grid */}
         <motion.div
