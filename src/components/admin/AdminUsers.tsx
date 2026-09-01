@@ -15,6 +15,7 @@ import type { AdminUser } from '../../lib/api.ts';
 import { Plus, Pencil, Trash2, RotateCcw, KeyRound } from 'lucide-react';
 import { useToast } from '../../lib/toast.tsx';
 import Pagination from './Pagination.tsx';
+import PasswordInput from '../PasswordInput.tsx';
 
 type PasswordForm = { userId: string; current: string; newPwd: string };
 
@@ -163,7 +164,7 @@ export default function AdminUsers() {
           <div className="grid grid-cols-2 gap-3">
             <input value={draft.username} onChange={(e) => setDraft((p) => ({ ...p, username: e.target.value }))} placeholder="Username" className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
             <input value={draft.display_name} onChange={(e) => setDraft((p) => ({ ...p, display_name: e.target.value }))} placeholder="Nome de exibição" className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
-            <input type="password" value={draft.password} onChange={(e) => setDraft((p) => ({ ...p, password: e.target.value }))} placeholder="Password (min 6)" className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+            <PasswordInput value={draft.password} onChange={(e) => setDraft((p) => ({ ...p, password: e.target.value }))} placeholder="Password (min 6)" className="px-3 py-2 rounded-lg border border-slate-200 text-sm" />
             <select value={draft.role} onChange={(e) => setDraft((p) => ({ ...p, role: e.target.value }))} className="px-3 py-2 rounded-lg border border-slate-200 text-sm">
               <option value="admin">admin</option>
               <option value="superadmin">superadmin</option>
@@ -182,8 +183,8 @@ export default function AdminUsers() {
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-sm font-bold font-display text-slate-900 mb-4">Alterar Password</h3>
             <div className="space-y-3">
-              <input type="password" value={passwordForm.current} onChange={(e) => setPasswordForm((p) => p ? { ...p, current: e.target.value } : null)} placeholder="Password actual" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
-              <input type="password" value={passwordForm.newPwd} onChange={(e) => setPasswordForm((p) => p ? { ...p, newPwd: e.target.value } : null)} placeholder="Nova password (min 6)" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+              <PasswordInput value={passwordForm.current} onChange={(e) => setPasswordForm((p) => p ? { ...p, current: e.target.value } : null)} placeholder="Password actual" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
+              <PasswordInput value={passwordForm.newPwd} onChange={(e) => setPasswordForm((p) => p ? { ...p, newPwd: e.target.value } : null)} placeholder="Nova password (min 6)" className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm" />
             </div>
             <div className="flex gap-2 mt-4">
               <button onClick={changePassword} disabled={!passwordForm.current || passwordForm.newPwd.length < 6} className="px-4 py-2 text-xs font-bold text-white bg-amber-600 rounded-xl hover:bg-amber-500 disabled:opacity-40 cursor-pointer"><KeyRound className="w-3.5 h-3.5 inline mr-1" />Alterar</button>

@@ -8,6 +8,7 @@ import {Link, useNavigate} from '@tanstack/react-router';
 import {Wrench, LogIn, ShieldAlert, Smartphone, Laptop, CircuitBoard} from 'lucide-react';
 import {login} from '../lib/auth.ts';
 import {useData} from '../contexts/DataContext.tsx';
+import PasswordInput from './PasswordInput.tsx';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -122,13 +123,11 @@ export default function Login() {
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
                 Password
               </label>
-              <input
-                type="password"
+              <PasswordInput
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:outline-none transition-all"
               />
             </div>
 

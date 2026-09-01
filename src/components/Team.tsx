@@ -39,19 +39,19 @@ export default function Team() {
           description="Profissionais certificados e apaixonados por tecnologia, prontos para devolver a vida ao seu dispositivo."
         />
 
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.15 }}
-          variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
-        >
-          {team.map((member) => (
-            <motion.div
-              key={member.id}
-              variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
-              className="glass-card rounded-3xl p-6 text-center hover:shadow-xl transition-all group"
-            >
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15 }}
+            variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
+            className="flex flex-wrap justify-center gap-8"
+          >
+            {team.map((member) => (
+              <motion.div
+                key={member.id}
+                variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
+                className="glass-card rounded-3xl p-6 text-center hover:shadow-xl transition-all group w-full sm:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.5rem)]"
+              >
               <div className="w-24 h-24 mx-auto rounded-full overflow-hidden ring-4 ring-slate-100 group-hover:ring-brand-blue/20 transition-all mb-5">
                 <img
                   src={member.photoUrl}
