@@ -14,7 +14,7 @@
 #         FTP_USER  → utilizador FTP
 #         FTP_PASS  → palavra-passe FTP
 #    2. Criar/utilizar uma conta FTP em hPanel → Files → FTP Accounts.
-#    3. O servidor-dir é public_html (raiz do domínio).
+#    3. O server-dir é dist/ (o FTP root na Hostinger já é public_html/).
 # ─────────────────────────────────────────────────────────────
 name: Deploy Hostinger
 
@@ -61,7 +61,7 @@ jobs:
           port: 21
           timeout: 90000
           local-dir: ./dist/
-          server-dir: public_html/
-          dangerous-clean-slate: false
+          server-dir: dist/
+          dangerous-clean-slate: true
           exclude: |
             **/.DS_Store
