@@ -43,8 +43,13 @@ Em **GitHub → Settings → Secrets and variables → Actions → New repositor
 | `SSH_USER` | Utilizador SSH. **Default no workflow: `u634834160`**. |
 | `SSH_PORT` | Porta SSH. **Default no workflow: `65002`**. |
 | `TARGET_PATH_GTA` | **Obrigatório.** Caminho absoluto da pasta pública, sem barra final. Para o domínio `gtatech.ao`, é normalmente: `/home/u634834160/domains/gtatech.ao/public_html`. O sufixo `_GTA` distingue este secret de outros projetos que partilhem o mesmo servidor. |
+| `FTP_HOST` | Servidor FTP da Hostinger (ex: `ftp.gtatech.ao`). Usado **apenas como fallback** quando o SSH dos runners dá timeout. |
+| `FTP_USER` | Utilizador FTP (criado em **hPanel → Files → FTP Accounts**). |
+| `FTP_PASS` | Palavra-passe FTP. |
 
-> O workflow já assume os valores reais do teu terminal (`31.220.106.101:65002` como `u634834160`), por isso só precisas de criar os secrets `SSH_PRIVATE_KEY` e `TARGET_PATH_GTA`.**
+> O workflow já assume os valores reais do teu terminal (`31.220.106.101:65002` como `u634834160`), por isso `SSH_HOST`, `SSH_USER` e `SSH_PORT` ficam opcionais. Necessários: `SSH_PRIVATE_KEY`, `TARGET_PATH_GTA` (e `FTP_HOST`/`FTP_USER`/`FTP_PASS` se quiseres o fallback).
+>
+> **Porquê o fallback FTP?** Em hospedagem partilhada, o firewall da Hostinger bloqueia, por vezes, os IPs dos runners do GitHub (Azure) para acesso SSH — daí o `Connection timed out`. O FTP/FTPS normalmente **não é bloqueado**. Se o passo "Deploy via SSH" falhar, o workflow envia o `dist/` por FTPS (porta 21) para `public_html/` automaticamente.
 
 ### 2. Onde obter a chave SSH
 
@@ -119,6 +124,7 @@ cat dist/.htaccess
 ## Notas e resolução de problemas
 
 - **O `.htaccess` não aparece na `dist`?** — Certifique-se de que está em `public/.htaccess`. O Vite copia tudo de `public/` para `dist/` no build.
+- **`Connection timed out` no passo "Deploy via SSH"?** — É o firewall dinâmico da Hostinger a bloquear os IPs dos runners (Azure) para SSH em hospedagem partilhada. Não é erro de configuração: repete o run ou deixa o **fallback FTP** tratar (envia `dist/` por FTPS). Confirma que definiste `FTP_HOST`/`FTP_USER`/`FTP_PASS`.
 - **Erro de permissão ao extrair no servidor?** — Confirme que o utilizador SSH tem escrita na `TARGET_PATH_GTA` e que o caminho está correto.
 - **Deploy parece "antigo"?** — O workflow apaga o conteúdo remoto antes de extrair; se persistir, verifique o cache do browser (Ctrl+Shift+R).
 - **Quer ativar em branches diferentes?** — Altere `branches: [main]` no workflow.
@@ -135,8 +141,8 @@ push → main
 npm ci → lint → build (gera dist/ + dist/.htaccess)
    │
    ▼
-ssh / scp para TARGET_PATH_GTA (limpar + extrair)
-   │
+Deploy via SSH p/ TARGET_PATH_GTA
+   │  (se SSH der timeout → fallback FTPS p/ public_html)
    ▼
-.phtaccess reescreve rotas → index.html
+.htaccess reescreve rotas → index.html
 ```
