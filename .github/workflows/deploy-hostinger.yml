@@ -10,10 +10,12 @@
 #         SSH_PORT         → porta SSH (default: 65002)
 #         TARGET_PATH_GTA  → caminho absoluto da pasta pública no Hostinger
 #                            (a pasta onde ficam index.html e assets)
-#    2. Adicionar o host ao known_hosts na primeira execução:
-#       o passo "Confirmar known_hosts" faz ssh-keyscan automaticamente,
-#       mas se o runner não aceitar, adicione manualmente o output de
-#       `ssh-keyscan -H <IP>` como secret SSH_HOST_KEY.
+#         FTP_HOST         → servidor FTP (fallback quando SSH está bloqueado)
+#         FTP_USER         → utilizador FTP (fallback)
+#         FTP_PASS         → palavra-passe FTP (fallback)
+#    3. Fallback: se o SSH dos runners der "timeout" (firewall dinâmico da
+#       Hostinger bloqueia, por vezes, os IPs Azure), o workflow envia o dist
+#       por FTPS (porta 21) para public_html — o FTP não costuma ser bloqueado.
 # ─────────────────────────────────────────────────────────────
 name: Deploy Hostinger
 
@@ -76,11 +78,11 @@ jobs:
       - name: Empacotar dist
         run: tar -czf deploy.tgz -C dist .
 
-      - name: Testar ligação SSH
-        run: ssh hostinger "echo 'SSH OK — ' \$(hostname)"
-
-      - name: Limpar pasta remota e enviar
+      - name: Deploy via SSH
+        id: ssh_deploy
+        continue-on-error: true
         run: |
+          set -eu
           if [ -z "$REMOTE_TARGET" ] || [ "$REMOTE_TARGET" = "/" ]; then
             echo "::error::TARGET_PATH_GTA está vazio ou é inválido. Abortando deploy para evitar apagar dados."
             exit 1
@@ -88,4 +90,20 @@ jobs:
           ssh hostinger "mkdir -p '$REMOTE_TARGET' && rm -rf '$REMOTE_TARGET'/* '$REMOTE_TARGET'/.[!.]* 2>/dev/null || true"
           scp -q deploy.tgz hostinger:/tmp/deploy.tgz
           ssh hostinger "tar -xzf /tmp/deploy.tgz -C '$REMOTE_TARGET' && rm -f /tmp/deploy.tgz"
-          echo "Deploy concluído para $REMOTE_TARGET"
+          echo "Deploy via SSH concluído para $REMOTE_TARGET"
+
+      - name: Deploy via FTP (fallback quando SSH está bloqueado)
+        if: steps.ssh_deploy.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASS }}
+          protocol: ftps
+          port: 21
+          timeout: 90000
+          local-dir: ./dist/
+          server-dir: public_html/
+          dangerous-clean-slate: false
+          exclude: |
+            **/.DS_Store
