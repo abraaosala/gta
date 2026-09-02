@@ -1,21 +1,20 @@
 # ─────────────────────────────────────────────────────────────
-#  Deploy do GTA-Tech (Vite SPA) para o Hostinger via SSH
+#  Deploy do GTA-Tech (Vite SPA) para o Hostinger via FTP
+#
+#  O SSH dos runners do GitHub é bloqueado pelo firewall da
+#  Hostinger em hospedagem partilhada (Connection timed out),
+#  por isso o deploy é feito por FTPS (porta 21), que não é
+#  bloqueado.
 #
 #  Pré-requisitos (uma vez):
 #    1. Configurar os secrets no GitHub
 #       (Settings → Secrets and variables → Actions):
-#         SSH_PRIVATE_KEY  → chave privada SSH global do Hostinger
-#         SSH_HOST         → IP/domínio do servidor (default: 31.220.106.101)
-#         SSH_USER         → utilizador SSH (default: u634834160)
-#         SSH_PORT         → porta SSH (default: 65002)
-#         TARGET_PATH_GTA  → caminho absoluto da pasta pública no Hostinger
-#                            (a pasta onde ficam index.html e assets)
-#         FTP_HOST         → servidor FTP (fallback quando SSH está bloqueado)
-#         FTP_USER         → utilizador FTP (fallback)
-#         FTP_PASS         → palavra-passe FTP (fallback)
-#    3. Fallback: se o SSH dos runners der "timeout" (firewall dinâmico da
-#       Hostinger bloqueia, por vezes, os IPs Azure), o workflow envia o dist
-#       por FTPS (porta 21) para public_html — o FTP não costuma ser bloqueado.
+#         FTP_HOST  → servidor FTP, SOZINHO, sem prefixo
+#                     (ex: 31.220.106.101  — SEM "ftp://")
+#         FTP_USER  → utilizador FTP
+#         FTP_PASS  → palavra-passe FTP
+#    2. Criar/utilizar uma conta FTP em hPanel → Files → FTP Accounts.
+#    3. O servidor-dir é public_html (raiz do domínio).
 # ─────────────────────────────────────────────────────────────
 name: Deploy Hostinger
 
@@ -28,11 +27,6 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     concurrency: deploy-hostinger
-    env:
-      REMOTE_HOST: ${{ secrets.SSH_HOST || '31.220.106.101' }}
-      REMOTE_USER: ${{ secrets.SSH_USER || 'u634834160' }}
-      REMOTE_PORT: ${{ secrets.SSH_PORT || '65002' }}
-      REMOTE_TARGET: ${{ secrets.TARGET_PATH_GTA }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -57,43 +51,7 @@ jobs:
           test -f dist/index.html
           test -f dist/.htaccess || { echo "dist/.htaccess em falta"; exit 1; }
 
-      - name: Configurar chave SSH e known_hosts
-        run: |
-          mkdir -p ~/.ssh
-          umask 077
-          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -p "$REMOTE_PORT" -H "$REMOTE_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
-          cat > ~/.ssh/config <<EOF
-          Host hostinger
-            HostName $REMOTE_HOST
-            User $REMOTE_USER
-            Port $REMOTE_PORT
-            IdentityFile ~/.ssh/id_rsa
-            StrictHostKeyChecking accept-new
-          EOF
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
-      - name: Empacotar dist
-        run: tar -czf deploy.tgz -C dist .
-
-      - name: Deploy via SSH
-        id: ssh_deploy
-        continue-on-error: true
-        run: |
-          set -eu
-          if [ -z "$REMOTE_TARGET" ] || [ "$REMOTE_TARGET" = "/" ]; then
-            echo "::error::TARGET_PATH_GTA está vazio ou é inválido. Abortando deploy para evitar apagar dados."
-            exit 1
-          fi
-          ssh hostinger "mkdir -p '$REMOTE_TARGET' && rm -rf '$REMOTE_TARGET'/* '$REMOTE_TARGET'/.[!.]* 2>/dev/null || true"
-          scp -q deploy.tgz hostinger:/tmp/deploy.tgz
-          ssh hostinger "tar -xzf /tmp/deploy.tgz -C '$REMOTE_TARGET' && rm -f /tmp/deploy.tgz"
-          echo "Deploy via SSH concluído para $REMOTE_TARGET"
-
-      - name: Deploy via FTP (fallback quando SSH está bloqueado)
-        if: steps.ssh_deploy.outcome == 'failure'
+      - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_HOST }}
