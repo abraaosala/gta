@@ -14,7 +14,7 @@ Este documento explica como publicar automaticamente o site na **Hostinger** sem
    - faz o *type-check* (`npm run lint`);
    - gera a pasta `dist` (`npm run build`);
    - **o Vite copia `public/.htaccess` → `dist/.htaccess`** automaticamente;
-   - envia o conteúdo de `dist/` para `public_html/` da Hostinger via FTPS.
+   - envia o conteúdo de `dist/` para `public_html/dist/` da Hostinger via FTPS.
 3. O `.htaccess` no servidor reescreve todas as rotas (`/admin`, `/login`, `/admin/services`, …) para o `index.html`, permitindo o *client-side routing* do TanStack Router.
 
 ---
@@ -109,7 +109,7 @@ push → main
 npm ci → lint → build (gera dist/ + dist/.htaccess)
    │
    ▼
-Deploy via FTPS → public_html/
+Deploy via FTPS → public_html/dist/
    │
    ▼
 .htaccess reescreve rotas → index.html
