@@ -117,8 +117,8 @@ export default function Hero() {
         />
       </div>
 
-      {/* Overlay branco suave para manter tom claro minimalista */}
-      <div className="absolute inset-0 bg-white/50 z-[1]" />
+      {/* Overlay translúcido com gradiente suave para máximo contraste e elegância */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/95 via-white/90 to-white/95 z-[1]" />
 
       {/* Dynamic Ambient Background Glows */}
       <div className="absolute top-1/4 left-1/10 w-96 h-96 bg-brand-blue/10 rounded-full blur-3xl animate-pulse-slow z-[2]" />
@@ -151,11 +151,11 @@ export default function Hero() {
               initial={{ opacity: 0, y: -15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="inline-flex self-center lg:self-start items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-bold uppercase tracking-widest"
+              className="inline-flex self-center lg:self-start items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 border border-blue-200/80 text-blue-700 text-xs font-semibold uppercase tracking-wider shadow-2xs"
             >
               <span className="relative flex h-2.5 w-2.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-500"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
               </span>
               {HERO_SLIDES[currentImage].tagline}
             </motion.div>
@@ -187,29 +187,29 @@ export default function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.8, delay: 0.3 }}
-              className="grid grid-cols-3 gap-4 border-y border-slate-200 py-6 my-2 self-center lg:self-start max-w-md"
+              className="grid grid-cols-3 gap-2 sm:gap-4 p-4 sm:p-5 bg-white/80 backdrop-blur-md rounded-2xl border border-slate-200/80 shadow-xs my-2 self-center lg:self-start max-w-lg w-full"
             >
-              <div className="flex flex-col">
-                <span className="text-3xl font-bold font-display text-slate-900 flex items-center gap-0.5">
-                  15<span className="text-xs font-normal text-slate-500 ">min</span>
+              <div className="flex flex-col items-center sm:items-start">
+                <span className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900 flex items-center gap-0.5">
+                  15<span className="text-xs font-medium text-slate-500">min</span>
                 </span>
-                <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-1">
+                <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
                   Diagnóstico
                 </span>
               </div>
-              <div className="flex flex-col border-x border-slate-200 px-3 sm:px-6">
-                <span className="text-3xl font-bold font-display text-slate-900 ">
+              <div className="flex flex-col items-center sm:items-start border-x border-slate-200/80 px-2 sm:px-4">
+                <span className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
                   100%
                 </span>
-                <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-1">
+                <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
                   Aprovado
                 </span>
               </div>
-              <div className="flex flex-col pl-2">
-                <span className="text-3xl font-bold font-display text-slate-900 ">
-                  90<span className="text-xs font-normal text-slate-500 ">dias</span>
+              <div className="flex flex-col items-center sm:items-start">
+                <span className="text-2xl sm:text-3xl font-extrabold font-display text-slate-900">
+                  90<span className="text-xs font-medium text-slate-500">dias</span>
                 </span>
-                <span className="text-xs text-slate-500 font-semibold uppercase tracking-wider mt-1">
+                <span className="text-[11px] text-slate-500 font-semibold uppercase tracking-wider mt-0.5">
                   Garantia
                 </span>
               </div>
@@ -220,14 +220,14 @@ export default function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 sm:items-center pt-2 self-center lg:self-start"
+              className="flex flex-col sm:flex-row gap-3.5 sm:items-center pt-2 self-center lg:self-start w-full sm:w-auto"
             >
               {/* Estimator Button */}
               <a
                 id="hero-estimator-btn"
                 href="#estimador"
                 onClick={handleScrollToEstimator}
-                className="h-14 px-8 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center justify-center gap-2 font-semibold transition-all group font-bold text-sm text-white scale-100 hover:scale-[1.02] active:scale-[0.98]"
+                className="h-13 px-7 bg-blue-600 hover:bg-blue-700 rounded-xl flex items-center justify-center gap-2 font-bold text-sm text-white shadow-lg shadow-blue-600/25 hover:shadow-blue-600/35 transition-all group scale-100 hover:scale-[1.02] active:scale-[0.98]"
               >
                 Orçamento de Reparo Online
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -240,9 +240,9 @@ export default function Hero() {
                 target="_blank"
                 referrerPolicy="no-referrer"
                 rel="noopener noreferrer"
-                className="h-14 px-8 border border-slate-200 hover:border-slate-300 rounded-xl flex items-center justify-center font-semibold transition-all bg-white text-slate-800 scale-100 hover:scale-[1.02] active:scale-[0.98]"
+                className="h-13 px-7 border border-slate-200 hover:border-slate-300 rounded-xl flex items-center justify-center font-bold text-sm transition-all bg-white hover:bg-slate-50 text-slate-800 shadow-xs scale-100 hover:scale-[1.02] active:scale-[0.98]"
               >
-                <MessageCircle className="w-5 h-5 mr-2 text-blue-500 " />
+                <MessageCircle className="w-5 h-5 mr-2 text-emerald-600" />
                 Falar com Técnico (WhatsApp)
               </a>
             </motion.div>
@@ -252,14 +252,14 @@ export default function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.6, delay: 0.5 }}
-              className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-400 font-mono pt-2 self-center lg:self-start"
+              className="flex flex-wrap gap-x-6 gap-y-2 text-xs text-slate-600 font-medium pt-2 self-center lg:self-start"
             >
               <span className="flex items-center">
-                <ShieldCheck className="w-4 h-4 text-emerald-500 mr-1.5" />
+                <ShieldCheck className="w-4 h-4 text-emerald-600 mr-1.5" />
                 Laboratório Certificado ESD
               </span>
               <span className="flex items-center">
-                <Award className="w-4 h-4 text-brand-cyan mr-1.5" />
+                <Award className="w-4 h-4 text-blue-600 mr-1.5" />
                 Reparações de Microeletrónica
               </span>
             </motion.div>
