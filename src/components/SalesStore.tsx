@@ -80,7 +80,7 @@ export default function SalesStore() {
                 placeholder="Pesquisar modelo, marca..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="block w-full rounded-2xl py-3 pl-10 pr-4 text-sm font-medium bg-white/70 border border-slate-200 text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-blue transition-all"
+                className="block w-full rounded-2xl py-3 pl-10 pr-4 text-sm font-medium bg-white border border-slate-200/80 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 shadow-2xs transition-all"
               />
             </div>
           }
@@ -90,20 +90,20 @@ export default function SalesStore() {
         <div className="flex flex-wrap gap-2.5 mb-10 max-w-xl">
           <button
             onClick={() => setSelectedCategory('all')}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all uppercase cursor-pointer ${
+            className={`px-4.5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all uppercase cursor-pointer ${
               selectedCategory === 'all'
-                ? 'bg-brand-blue text-white shadow-md'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                ? 'bg-slate-900 text-white shadow-sm'
+                : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
             }`}
           >
             Todos os Itens
           </button>
           <button
             onClick={() => setSelectedCategory('smartphones')}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all uppercase flex items-center gap-1.5 cursor-pointer ${
+            className={`px-4.5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all uppercase flex items-center gap-1.5 cursor-pointer ${
               selectedCategory === 'smartphones'
-                ? 'bg-brand-blue text-white shadow-md'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                ? 'bg-slate-900 text-white shadow-sm'
+                : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
             }`}
           >
             <Smartphone className="w-3.5 h-3.5" />
@@ -111,10 +111,10 @@ export default function SalesStore() {
           </button>
           <button
             onClick={() => setSelectedCategory('laptops')}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all uppercase flex items-center gap-1.5 cursor-pointer ${
+            className={`px-4.5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all uppercase flex items-center gap-1.5 cursor-pointer ${
               selectedCategory === 'laptops'
-                ? 'bg-brand-blue text-white shadow-md'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                ? 'bg-slate-900 text-white shadow-sm'
+                : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
             }`}
           >
             <Laptop className="w-3.5 h-3.5" />
@@ -122,10 +122,10 @@ export default function SalesStore() {
           </button>
           <button
             onClick={() => setSelectedCategory('accessories')}
-            className={`px-5 py-2.5 rounded-full text-xs font-semibold tracking-wide transition-all uppercase flex items-center gap-1.5 cursor-pointer ${
+            className={`px-4.5 py-2 rounded-full text-xs font-semibold tracking-wide transition-all uppercase flex items-center gap-1.5 cursor-pointer ${
               selectedCategory === 'accessories'
-                ? 'bg-brand-blue text-white shadow-md'
-                : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                ? 'bg-slate-900 text-white shadow-sm'
+                : 'bg-white text-slate-600 border border-slate-200/80 hover:bg-slate-50 hover:text-slate-900 shadow-2xs'
             }`}
           >
             <Plug className="w-3.5 h-3.5" />
@@ -139,7 +139,7 @@ export default function SalesStore() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
           variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
         >
           <AnimatePresence mode="popLayout">
             {filteredProducts.map((product) => {
@@ -152,9 +152,9 @@ export default function SalesStore() {
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.4 }}
+                  transition={{ duration: 0.35 }}
                   onClick={() => setSelectedProduct(product)}
-                  className="group rounded-3xl bg-white border border-slate-200/60 hover:border-brand-blue/30 overflow-hidden flex flex-col justify-between hover:shadow-2xl transition-all duration-300 cursor-pointer"
+                  className="group rounded-3xl bg-white border border-slate-200/80 hover:border-blue-500/30 overflow-hidden flex flex-col justify-between hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-300 cursor-pointer"
                 >
                   <div>
                     {/* Media Image Holder with Badge Overlay */}
@@ -167,17 +167,17 @@ export default function SalesStore() {
                       />
 
                       {/* Condition badge */}
-                      <span className="absolute top-4 left-4 inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-black/75 backdrop-blur-md text-white border border-white/10 ">
+                      <span className="absolute top-4 left-4 inline-flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-950/80 backdrop-blur-md text-white border border-white/10 shadow-xs">
                         {product.condition}
                       </span>
 
                       {/* Stock availability badge */}
                       {product.inStock ? (
-                        <span className="absolute top-4 right-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 backdrop-blur-md">
+                        <span className="absolute top-4 right-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-700 border border-emerald-500/30 backdrop-blur-md">
                           Em Stock
                         </span>
                       ) : (
-                        <span className="absolute top-4 right-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-600 border border-red-500/20 backdrop-blur-md">
+                        <span className="absolute top-4 right-4 inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-700 border border-rose-500/30 backdrop-blur-md">
                           Esgotado
                         </span>
                       )}
@@ -186,17 +186,17 @@ export default function SalesStore() {
                     {/* Inner content */}
                     <div className="p-6 text-left">
                       <div className="flex items-center gap-2 mb-2">
-                        <CategoryIcon className="w-4 h-4 text-brand-blue " />
-                        <span className="text-[10px] font-mono tracking-widest text-slate-400 uppercase font-semibold">
+                        <CategoryIcon className="w-4 h-4 text-blue-600" />
+                        <span className="text-[10px] font-mono tracking-widest text-slate-500 uppercase font-semibold">
                           {product.category === 'smartphones' ? 'Telemóveis' : product.category === 'laptops' ? 'Computadores' : 'Acessórios'}
                         </span>
                       </div>
 
-                      <h3 className="text-lg font-bold font-display text-slate-900 leading-tight mb-2 group-hover:text-brand-blue transition-colors">
+                      <h3 className="text-lg font-bold font-display text-slate-900 leading-tight mb-2 group-hover:text-blue-600 transition-colors">
                         {product.name}
                       </h3>
 
-                      <p className="text-slate-500 text-xs leading-relaxed mb-4">
+                      <p className="text-slate-600 text-xs leading-relaxed mb-4">
                         {product.description}
                       </p>
 
@@ -204,8 +204,8 @@ export default function SalesStore() {
                       {product.specs && product.specs.length > 0 && (
                         <div className="space-y-1.5 border-t border-slate-100 pt-3.5 pb-2">
                           {product.specs.map((spec, specIdx) => (
-                            <div key={specIdx} className="flex items-center text-[11px] text-slate-600 font-medium">
-                              <span className="w-1.5 h-1.5 rounded-full bg-brand-blue mr-2 shrink-0" />
+                            <div key={specIdx} className="flex items-center text-[11px] text-slate-700 font-medium">
+                              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mr-2 shrink-0" />
                               <span>{spec}</span>
                             </div>
                           ))}
@@ -222,7 +222,7 @@ export default function SalesStore() {
                           {product.originalPrice.toLocaleString('pt')} Kz
                         </span>
                       )}
-                      <span className="text-base sm:text-lg font-extrabold font-display text-brand-blue leading-none">
+                      <span className="text-base sm:text-lg font-extrabold font-display text-blue-600 leading-none">
                         {product.price.toLocaleString('pt')} <span className="text-[10px] font-sans font-bold">Kz</span>
                       </span>
                     </div>
@@ -232,7 +232,7 @@ export default function SalesStore() {
                       disabled={!product.inStock}
                       className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold transition-all uppercase cursor-pointer active:scale-95 ${
                         product.inStock
-                          ? 'bg-emerald-600 text-white hover:bg-emerald-500 shadow-md shadow-emerald-600/10'
+                          ? 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md shadow-emerald-600/15'
                           : 'bg-slate-100 text-slate-400 cursor-not-allowed'
                       }`}
                     >
