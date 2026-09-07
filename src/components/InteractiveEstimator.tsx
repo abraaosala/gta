@@ -122,16 +122,16 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
   };
 
   return (
-    <section id="estimador" className="py-20 bg-slate-50 transition-all overflow-hidden relative">
+    <section id="estimador" className="py-20 sm:py-24 bg-slate-50/70 transition-all overflow-hidden relative">
       {/* Visual glowing points */}
-      <div className="absolute top-1/2 left-0 w-80 h-80 bg-brand-cyan/5 rounded-full blur-3xl -z-10" />
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-brand-blue/5 rounded-full blur-3xl -z-10" />
+      <div className="absolute top-1/2 left-0 w-80 h-80 bg-blue-500/5 rounded-full blur-3xl -z-10" />
+      <div className="absolute bottom-0 right-0 w-80 h-80 bg-sky-500/5 rounded-full blur-3xl -z-10" />
 
       <motion.div
-        initial={{ opacity: 0, y: 40 }}
+        initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative"
       >
         {/* Section Header */}
@@ -145,15 +145,15 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Form Side - 7 Columns */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="glass-card p-6 sm:p-8 rounded-3xl text-left border border-slate-200/50 bg-white ">
+            <div className="glass-card p-6 sm:p-8 rounded-3xl text-left border border-slate-200/80 bg-white shadow-sm">
 
               <h3 className="text-xl font-bold font-display text-slate-900 mb-6 flex items-center">
-                <Calculator className="w-5 h-5 text-brand-cyan mr-2" />
+                <Calculator className="w-5 h-5 text-blue-600 mr-2.5" />
                 1. Selecione o Dispositivo
               </h3>
 
               {/* Step 1: Device Tabs */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
+              <div className="grid grid-cols-3 gap-2 mb-6 p-1.5 bg-slate-100/80 rounded-2xl border border-slate-200/60">
                 {estimator.map((device, idx) => {
                   const isActive = selectedDeviceIndex === idx;
                   const icons = [
@@ -165,10 +165,10 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                     <button
                       key={device.id}
                       onClick={() => setSelectedDeviceIndex(idx)}
-                      className={`flex items-center justify-center p-3.5 rounded-2xl text-xs font-bold leading-none cursor-pointer border transition-all ${
+                      className={`flex items-center justify-center p-3 rounded-xl text-xs font-bold leading-none cursor-pointer transition-all ${
                         isActive
-                          ? 'bg-slate-900 text-white border-slate-900 '
-                          : 'bg-slate-50 text-slate-600 border-slate-100 hover:bg-slate-100 '
+                          ? 'bg-slate-900 text-white shadow-sm'
+                          : 'bg-transparent text-slate-600 hover:text-slate-900 hover:bg-white/70'
                       }`}
                     >
                       {icons[idx] || <Smartphone className="w-4 h-4 mr-2" />}
@@ -183,13 +183,13 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
               {/* Step 2: Brand and Model */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                 <div>
-                  <label className="block text-xs font-bold font-mono text-slate-400 uppercase mb-2">
+                  <label className="block text-xs font-bold font-mono text-slate-500 uppercase mb-2">
                     Marca do Aparelho
                   </label>
                   <select
                     value={selectedBrand}
                     onChange={(e) => setSelectedBrand(e.target.value)}
-                    className="w-full bg-slate-50 border border-slate-200/60 pointer-events-auto px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-brand-blue focus:outline-none text-slate-800 "
+                    className="w-full bg-slate-50/70 border border-slate-200/80 pointer-events-auto px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white focus:outline-none text-slate-800 transition-all cursor-pointer"
                   >
                     {currentDevice.brands.map((b) => (
                       <option key={b} value={b}>
@@ -199,7 +199,7 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-bold font-mono text-slate-400 uppercase mb-2">
+                  <label className="block text-xs font-bold font-mono text-slate-500 uppercase mb-2">
                     Modelo Específico (Opcional)
                   </label>
                   <input
@@ -207,17 +207,17 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                     value={modelInput}
                     onChange={(e) => setModelInput(e.target.value)}
                     placeholder="Ex: iPhone 13, HP Pavilion 15"
-                    className="w-full bg-slate-50 border border-slate-200/60 px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-brand-blue focus:outline-none text-slate-800 "
+                    className="w-full bg-slate-50/70 border border-slate-200/80 px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white focus:outline-none text-slate-800 transition-all"
                   />
                 </div>
               </div>
 
               {/* Step 3: Issue Selection */}
               <div className="mb-6">
-                <label className="block text-xs font-bold font-mono text-slate-400 uppercase mb-3">
+                <label className="block text-xs font-bold font-mono text-slate-500 uppercase mb-3">
                   Sintoma ou Avaria Identificada
                 </label>
-                <div className="space-y-2.5 max-h-[190px] overflow-y-auto pr-1">
+                <div className="space-y-2 max-h-[220px] overflow-y-auto pr-1">
                   {currentDevice.issues.map((issue, idx) => {
                     const isSelected = selectedIssueIndex === idx;
                     return (
@@ -226,21 +226,21 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                         onClick={() => setSelectedIssueIndex(idx)}
                         className={`p-3.5 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
                           isSelected
-                            ? 'bg-brand-blue/5 border-brand-blue text-slate-950 font-semibold'
-                            : 'bg-slate-50/50 border-slate-100 hover:bg-slate-50 '
+                            ? 'bg-blue-50/70 border-blue-500/70 text-slate-950 font-semibold shadow-2xs'
+                            : 'bg-slate-50/50 border-slate-200/60 hover:bg-slate-50 hover:border-slate-300 text-slate-700'
                         }`}
                       >
                         <div className="flex items-center">
                           <div
-                            className={`w-4 h-4 rounded-full border mr-3 flex items-center justify-center ${
+                            className={`w-4 h-4 rounded-full border mr-3 flex items-center justify-center transition-colors ${
                               isSelected
-                                ? 'border-brand-blue bg-brand-blue '
-                                : 'border-slate-300 '
+                                ? 'border-blue-600 bg-blue-600'
+                                : 'border-slate-300 bg-white'
                             }`}
                           >
                             {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                           </div>
-                          <span className="text-xs sm:text-sm text-slate-700 ">
+                          <span className="text-xs sm:text-sm text-slate-800">
                             {issue.label}
                           </span>
                         </div>
@@ -255,7 +255,7 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
 
               {/* Step 4: Text details */}
               <div>
-                <label className="block text-xs font-bold font-mono text-slate-400 uppercase mb-2">
+                <label className="block text-xs font-bold font-mono text-slate-500 uppercase mb-2">
                   Descreva brevemente o problema (Opcional)
                 </label>
                 <textarea
@@ -263,7 +263,7 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                   onChange={(e) => setDetailsInput(e.target.value)}
                   placeholder="Ex: Deixei cair no chão e o ecrã ficou às riscas. O telemóvel vibra mas não mostra imagem..."
                   rows={2}
-                  className="w-full bg-slate-50 border border-slate-200/60 px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-brand-blue focus:outline-none text-slate-800 resize-none"
+                  className="w-full bg-slate-50/70 border border-slate-200/80 px-4 py-3 rounded-xl text-sm focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white focus:outline-none text-slate-800 resize-none transition-all"
                 />
               </div>
               </>)}
@@ -272,48 +272,48 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
 
           {/* Pricing Summary Side - 5 Columns */}
           <div className="lg:col-span-5 relative">
-            <div className="glass-card-darker p-6 sm:p-8 rounded-3xl border border-slate-200 shadow-xl text-left bg-white relative">
+            <div className="glass-card-darker p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-lg shadow-slate-900/5 text-left bg-white relative">
 
               <div className="absolute top-4 right-4 animate-float-medium">
-                <Sparkles className="w-5 h-5 text-brand-cyan/60" id="sparkle-calc" />
+                <Sparkles className="w-5 h-5 text-amber-500" id="sparkle-calc" />
               </div>
 
-              <span className="text-[10px] font-mono bg-brand-blue/5 text-brand-blue px-2.5 py-1 rounded-md font-bold uppercase tracking-wider">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-mono font-bold uppercase tracking-wider text-blue-700 bg-blue-50 border border-blue-200/70">
                 Orçamento de Reparação Inicial
               </span>
 
               {/* Computed Values layout */}
-              <div className="my-6 pb-6 border-b border-slate-100 ">
-                <label className="block text-[10px] text-slate-400 font-mono uppercase font-bold tracking-wider mb-1">
+              <div className="my-6 pb-6 border-b border-slate-100">
+                <label className="block text-[10px] text-slate-500 font-mono uppercase font-bold tracking-wider mb-1">
                   Valor Estimado do Serviço
                 </label>
-                <div className="text-3xl sm:text-4xl font-extrabold font-display text-slate-950 leading-none">
+                <div className="text-3xl sm:text-4xl font-extrabold font-display text-slate-950 leading-none tracking-tight">
                   {formatCurrency(currentIssue.basePrice)}
                 </div>
-                <p className="text-[10px] text-slate-400 font-sans mt-2">
+                <p className="text-[11px] text-slate-500 font-sans mt-2">
                   * Inclui peças originais ou alta gama + mão de obra especializada.
                 </p>
               </div>
 
               {/* Technical Specifications metadata card */}
-              <div className="space-y-4 mb-8">
+              <div className="space-y-3.5 mb-8">
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400 ">Tempo de Execução:</span>
-                  <span className="font-bold text-slate-800 bg-slate-100 px-2 py-0.5 rounded-md font-mono">
+                  <span className="text-slate-500">Tempo de Execução:</span>
+                  <span className="font-bold text-slate-800 bg-slate-100 border border-slate-200/60 px-2 py-0.5 rounded-md font-mono">
                     ~ {currentIssue.estimatedTime}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400 ">Diagnóstico Laboratorial:</span>
-                  <span className="font-bold text-emerald-500 font-mono">Gratuito (0 Kz)</span>
+                  <span className="text-slate-500">Diagnóstico Laboratorial:</span>
+                  <span className="font-bold text-emerald-600 font-mono">Gratuito (0 Kz)</span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400 ">Uso de Peças Homologadas:</span>
-                  <span className="font-bold text-slate-800 ">Sim, com Garantia</span>
+                  <span className="text-slate-500">Uso de Peças Homologadas:</span>
+                  <span className="font-bold text-slate-800">Sim, com Garantia</span>
                 </div>
-                <div className="flex justify-between items-center text-xs pt-1.5 border-t border-slate-100 ">
-                  <span className="text-slate-400 ">Cobertura de Garantia:</span>
-                  <span className="font-bold text-brand-blue ">90 Dias Certificados</span>
+                <div className="flex justify-between items-center text-xs pt-2 border-t border-slate-100">
+                  <span className="text-slate-500">Cobertura de Garantia:</span>
+                  <span className="font-bold text-blue-600">90 Dias Certificados</span>
                 </div>
               </div>
 
@@ -323,7 +323,7 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                   {/* Primary Call: Send to WhatsApp */}
                   <button
                     onClick={handleWhatsAppSend}
-                    className="w-full flex items-center justify-center py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all shadow-md shadow-emerald-700/10 cursor-pointer text-sm leading-none"
+                    className="w-full flex items-center justify-center py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:shadow-emerald-600/30 cursor-pointer text-sm leading-none active:scale-[0.98]"
                   >
                     <MessageCircle className="w-5 h-5 mr-2" />
                     Enviar Orçamento para o WhatsApp
@@ -332,7 +332,7 @@ Podem confirmar a disponibilidade de atendimento hoje no laboratório de Cabinda
                   {/* Secondary Call: Book inside App (Local simulation) */}
                   <button
                     onClick={() => setShowBookingForm(true)}
-                    className="w-full flex items-center justify-center py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-all cursor-pointer text-xs"
+                    className="w-full flex items-center justify-center py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl transition-all cursor-pointer text-xs active:scale-[0.98]"
                   >
                     <CalendarCheck className="w-4 h-4 mr-2" />
                     Agendar Visita ao Laboratório

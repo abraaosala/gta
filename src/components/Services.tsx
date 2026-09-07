@@ -63,7 +63,7 @@ export default function Services({ onSelectService }: ServicesProps) {
           whileInView="visible"
           viewport={{ once: true, amount: 0.15 }}
           variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
         >
           {services.map((service, index) => {
             const IconComponent = IconMap[service.iconName] || Smartphone;
@@ -71,37 +71,37 @@ export default function Services({ onSelectService }: ServicesProps) {
               <motion.div
                 key={service.id}
                 variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
-                className="group relative flex flex-col justify-between p-6 sm:p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-white hover:shadow-2xl hover:border-brand-blue/20 transition-all duration-300 text-left"
+                className="group relative flex flex-col justify-between p-6 sm:p-8 rounded-3xl bg-slate-50/70 border border-slate-200/80 hover:bg-white hover:shadow-xl hover:shadow-blue-500/5 hover:border-blue-500/30 transition-all duration-300 text-left"
               >
                 <div>
                   {/* Icon & Specs Header inside each card */}
                   <div className="flex items-center justify-between mb-6">
-                    <div className="p-3 text-brand-blue bg-brand-blue/5 rounded-2.5xl group-hover:bg-brand-blue group-hover:text-white transition-all duration-300">
+                    <div className="p-3.5 text-blue-600 bg-blue-50 border border-blue-100 rounded-2xl group-hover:bg-blue-600 group-hover:text-white transition-all duration-300 shadow-2xs">
                       <IconComponent className="w-6 h-6" />
                     </div>
                     <div className="text-right">
-                      <span className="block text-[10px] font-mono font-semibold tracking-wider text-slate-400 uppercase">
+                      <span className="block text-[10px] font-mono font-semibold tracking-wider text-slate-500 uppercase">
                         Tempo Médio
                       </span>
-                      <span className="block text-xs font-bold text-slate-800 ">
+                      <span className="inline-block text-xs font-bold text-slate-800 bg-white border border-slate-200/70 px-2.5 py-0.5 rounded-full mt-1 shadow-2xs">
                         {service.avgTime}
                       </span>
                     </div>
                   </div>
 
                   {/* Text details */}
-                  <h3 className="text-xl font-bold font-display text-slate-950 mb-2">
+                  <h3 className="text-xl font-bold font-display text-slate-900 mb-2 group-hover:text-blue-600 transition-colors">
                     {service.title}
                   </h3>
-                  <p className="text-slate-500 text-sm mb-6 leading-relaxed">
+                  <p className="text-slate-600 text-sm mb-6 leading-relaxed">
                     {service.description}
                   </p>
 
                   {/* Unordered detailed list vectors */}
                   <ul className="space-y-2.5 mb-8">
                     {service.features.map((feature, idx) => (
-                      <li key={idx} className="flex items-start text-xs text-slate-600 ">
-                        <Check className="w-4 h-4 text-emerald-500 mr-2 shrink-0 mt-0.5" />
+                      <li key={idx} className="flex items-start text-xs text-slate-700">
+                        <Check className="w-4 h-4 text-emerald-600 mr-2 shrink-0 mt-0.5" />
                         <span>{feature}</span>
                       </li>
                     ))}
@@ -109,19 +109,19 @@ export default function Services({ onSelectService }: ServicesProps) {
                 </div>
 
                 {/* Card Footer with Price starting rate and CTA linkage */}
-                <div className="pt-5 border-t border-slate-200/60 flex items-center justify-between mt-auto">
+                <div className="pt-5 border-t border-slate-200/80 flex items-center justify-between mt-auto">
                   <div>
-                    <span className="block text-[10px] font-mono text-slate-400 uppercase leading-none mb-1">
+                    <span className="block text-[10px] font-mono text-slate-500 uppercase leading-none mb-1">
                       Orçamento Estimado
                     </span>
-                    <span className="text-sm font-bold text-brand-blue ">
+                    <span className="text-base font-extrabold text-blue-600 font-display">
                       {service.priceRange}
                     </span>
                   </div>
                   <button
                     onClick={() => onSelectService(service.id)}
-                    className="flex items-center justify-center p-2.5 rounded-xl bg-slate-100 hover:bg-brand-blue text-slate-700 hover:text-white transition-all cursor-pointer group-hover:scale-110"
-                    title="Pre-selecionar no Calculador de Orçamentos"
+                    className="flex items-center justify-center p-2.5 rounded-xl bg-white border border-slate-200/80 hover:bg-blue-600 hover:border-blue-600 text-slate-700 hover:text-white transition-all cursor-pointer shadow-2xs group-hover:scale-105"
+                    title="Pré-selecionar no Calculador de Orçamentos"
                   >
                     <ArrowRight className="w-4 h-4" />
                   </button>
