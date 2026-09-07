@@ -4,6 +4,7 @@ import { adminFetchSettings, adminUpdateSettings } from '../../lib/api.ts';
 import { useToast } from '../../lib/toast.tsx';
 
 const SETTING_META: Record<string, { label: string; placeholder: string; icon?: string }> = {
+  google_maps_url: { label: 'Google Maps (Link)', placeholder: 'https://maps.google.com/...', icon: 'MapPin' },
   instagram_url: { label: 'Instagram', placeholder: 'https://instagram.com/...', icon: 'Instagram' },
   facebook_url: { label: 'Facebook', placeholder: 'https://facebook.com/...', icon: 'Facebook' },
   tiktok_url: { label: 'TikTok', placeholder: 'https://tiktok.com/@...', icon: 'Music2' },

@@ -17,15 +17,15 @@ import type {
 } from './types.ts';
 
 export const BUSINESS_INFO = {
-  name: '',
-  slogan: '',
-  description: '',
-  phone: '',
-  whatsapp: '',
-  email: '',
-  address: '',
-  hours: '',
-  city: '',
+  name: 'GTA-Tech',
+  slogan: 'Especialistas em Reparação de Tecnologia',
+  description: 'Assistência técnica especializada em smartphones, computadores e tablets em Cabinda.',
+  phone: '+244 923 125 487',
+  whatsapp: '244923125487',
+  email: 'contacto@gta-tech.ao',
+  address: 'Por baixo do Prédio EBJ, Cabinda - Angola',
+  hours: 'Seg - Sáb: 08h00 - 16h30',
+  city: 'Cabinda',
   logoUrl: '',
   faviconUrl: '',
 };
