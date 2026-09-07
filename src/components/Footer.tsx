@@ -34,7 +34,7 @@ export default function Footer() {
               {businessInfo.logoUrl && !logoError ? (
                 <img key={businessInfo.logoUrl} src={`${businessInfo.logoUrl}?t=${Date.now()}`} alt={businessInfo.name} onError={() => setLogoError(true)} className="w-8 h-8 rounded-lg object-cover" />
               ) : (
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-blue to-cyan-400 flex items-center justify-center text-white">
+                <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-600 to-sky-400 flex items-center justify-center text-white shadow-sm">
                   <Wrench className="w-4 h-4" />
                 </div>
               )}
@@ -57,19 +57,19 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <a href="#servicos" className="hover:text-brand-cyan transition-colors">Substituição de Ecrãs</a>
+                <a href="#servicos" className="hover:text-sky-400 transition-colors">Substituição de Ecrãs</a>
               </li>
               <li>
-                <a href="#servicos" className="hover:text-brand-cyan transition-colors">Telas e Displays Partidos</a>
+                <a href="#servicos" className="hover:text-sky-400 transition-colors">Telas e Displays Partidos</a>
               </li>
               <li>
-                <a href="#servicos" className="hover:text-brand-cyan transition-colors">Substituição de Baterias</a>
+                <a href="#servicos" className="hover:text-sky-400 transition-colors">Substituição de Baterias</a>
               </li>
               <li>
-                <a href="#servicos" className="hover:text-brand-cyan transition-colors">Reparação de Placas lógicas</a>
+                <a href="#servicos" className="hover:text-sky-400 transition-colors">Reparação de Placas lógicas</a>
               </li>
               <li>
-                <a href="#servicos" className="hover:text-brand-cyan transition-colors">Upgrades de Computadores e SSD</a>
+                <a href="#servicos" className="hover:text-sky-400 transition-colors">Upgrades de Computadores e SSD</a>
               </li>
             </ul>
           </div>
@@ -81,19 +81,19 @@ export default function Footer() {
             </h4>
             <ul className="space-y-2 text-xs">
               <li>
-                <a href="#inicio" className="hover:text-brand-cyan transition-colors">Início</a>
+                <a href="#inicio" className="hover:text-sky-400 transition-colors">Início</a>
               </li>
               <li>
-                <a href="#servicos" className="hover:text-brand-cyan transition-colors">Serviços</a>
+                <a href="#servicos" className="hover:text-sky-400 transition-colors">Serviços</a>
               </li>
               <li>
-                <a href="#features" className="hover:text-brand-cyan transition-colors">Vantagens</a>
+                <a href="#features" className="hover:text-sky-400 transition-colors">Vantagens</a>
               </li>
               <li>
-                <a href="#processo" className="hover:text-brand-cyan transition-colors">Processo</a>
+                <a href="#processo" className="hover:text-sky-400 transition-colors">Processo</a>
               </li>
               <li>
-                <a href="#estimador" className="hover:text-brand-cyan transition-colors">Calculador Online</a>
+                <a href="#estimador" className="hover:text-sky-400 transition-colors">Calculador Online</a>
               </li>
             </ul>
           </div>
@@ -105,12 +105,12 @@ export default function Footer() {
             </h4>
             <div className="space-y-2 text-xs text-slate-400">
               <div className="flex items-center space-x-2">
-                <Phone className="w-3.5 h-3.5 text-brand-cyan" />
+                <Phone className="w-3.5 h-3.5 text-sky-400" />
                 <span>{businessInfo.phone}</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Clock className="w-3.5 h-3.5 text-brand-cyan" />
-                <span className="leading-tight">{businessInfo.hours}</span>
+                <Clock className="w-3.5 h-3.5 text-sky-400" />
+                <span className="leading-tight">{businessInfo.hours || 'Seg - Sáb: 08h00 - 16h30'}</span>
               </div>
               <div className="text-[10px] text-slate-500 leading-snug">
                 {businessInfo.city}
@@ -147,7 +147,14 @@ export default function Footer() {
               &copy; {currentYear} GTA-Tech. Todos os direitos reservados.
             </div>
             <div>
-              Rua do Comércio, Cabinda - Angola.
+              <a
+                href={settings.google_maps_url || 'https://www.google.com/maps/place/EBJ+Auto+Escola/@-5.5562647,12.2358382,17.75z/data=!4m10!1m2!2m1!1sebj+cabinda!3m6!1s0x1a5dd26112001e1f:0x239dfac39b29f53c!8m2!3d-5.5562647!4d12.2358382!15sCgtlYmogY2FiaW5kYZIBH2RyaXZlcnNfbGljZW5zZV90cmFpbmluZ19zY2hvb2zgAQA!16s%2Fg%2F11h9qdzpd4?entry=ttu'}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-sky-400 transition-colors"
+              >
+                {businessInfo.address || 'Por baixo do Prédio EBJ, Cabinda - Angola'}
+              </a>
             </div>
           </div>
 

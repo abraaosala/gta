@@ -40,10 +40,10 @@ export default function Testimonials() {
               <motion.div
                 key={t.id}
                 variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
-                className="glass-card hover:bg-white p-6 sm:p-8 rounded-3xl border border-slate-100 text-left flex flex-col justify-between relative group"
+                className="glass-card bg-white hover:bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-500/5 text-left flex flex-col justify-between relative group transition-all duration-300"
               >
                 {/* Decorative floating double quote in card top */}
-                <div className="absolute top-6 right-6 text-slate-200/50 group-hover:text-brand-cyan/20 transition-all">
+                <div className="absolute top-6 right-6 text-slate-200 group-hover:text-blue-500/20 transition-all">
                   <Quote className="w-8 h-8" />
                 </div>
 
@@ -51,12 +51,12 @@ export default function Testimonials() {
                   {/* Rating Stars */}
                   <div className="flex items-center space-x-1 mb-4">
                     {[...Array(t.rating)].map((_, i) => (
-                      <Star className="w-4 h-4 fill-brand-amber text-brand-amber" key={i} />
+                      <Star className="w-4 h-4 fill-amber-400 text-amber-400" key={i} />
                     ))}
                   </div>
 
                   {/* Comment */}
-                  <p className="text-sm font-sans italic text-slate-600 mb-6 leading-relaxed">
+                  <p className="text-sm font-sans italic text-slate-700 mb-6 leading-relaxed">
                     "{t.comment}"
                   </p>
                 </div>
@@ -64,17 +64,17 @@ export default function Testimonials() {
                 {/* Sender card detail */}
                 <div className="flex items-center space-x-3 pt-5 border-t border-slate-100 mt-auto">
                   {/* Avatar circle (Initials name design) */}
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-brand-blue to-cyan-500 text-white flex items-center justify-center font-bold text-sm tracking-tight">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-blue-600 to-sky-500 text-white flex items-center justify-center font-bold text-sm tracking-tight shadow-2xs">
                     {t.name.split(' ').map(part => part[0]).join('')}
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-950 leading-none">
+                    <h4 className="text-sm font-bold text-slate-900 leading-none">
                       {t.name}
                     </h4>
 
                     {/* Device Repaired meta tags */}
-                    <div className="flex items-center text-[10px] text-slate-400 mt-1.5 font-mono">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-500 mr-1 shrink-0" />
+                    <div className="flex items-center text-[10px] text-slate-500 mt-1.5 font-mono">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-600 mr-1 shrink-0" />
                       <span className="line-clamp-1">{t.deviceRepaired}</span>
                     </div>
                   </div>
@@ -85,10 +85,10 @@ export default function Testimonials() {
         </motion.div>
 
         {/* Satisfied Clients banner */}
-        <div className="mt-16 text-center text-xs text-slate-400 font-mono flex flex-col sm:flex-row items-center justify-center gap-2">
-          <span>✔️ Avaliação Média Corporativa: <strong>4.9 / 5.0 estrelas</strong></span>
+        <div className="mt-16 text-center text-xs text-slate-600 font-mono flex flex-col sm:flex-row items-center justify-center gap-2 bg-white border border-slate-200/80 rounded-full py-2.5 px-6 max-w-xl mx-auto shadow-2xs">
+          <span>⭐ Avaliação Média Corporativa: <strong>4.9 / 5.0 estrelas</strong></span>
           <span className="hidden sm:inline">·</span>
-          <span>Baseado em mais de 450 avaliações presenciais e Google Maps</span>
+          <span>Mais de 450 clientes satisfeitos em Cabinda</span>
         </div>
 
       </motion.div>

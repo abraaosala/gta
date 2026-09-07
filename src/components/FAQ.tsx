@@ -48,20 +48,30 @@ export default function FAQ() {
               <motion.div
                 key={faq.id}
                 variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
-                className="rounded-2xl border border-slate-150 bg-slate-50/50 overflow-hidden transition-all duration-300"
+                className={`rounded-2xl border transition-all duration-300 overflow-hidden ${
+                  isOpen
+                    ? 'border-blue-500/40 bg-white shadow-md shadow-blue-500/5'
+                    : 'border-slate-200/80 bg-slate-50/60 hover:bg-slate-50 hover:border-slate-300'
+                }`}
               >
                 {/* Trigger Row */}
                 <button
                   onClick={() => toggleAccordion(index)}
-                  className="w-full flex items-center justify-between p-5 text-left cursor-pointer hover:bg-slate-50 transition-colors focus:outline-none focus:ring-0"
+                  className="w-full flex items-center justify-between p-5 text-left cursor-pointer transition-colors focus:outline-none"
                 >
                   <div className="flex items-center space-x-3 pr-4">
-                    <HelpCircle className="w-5 h-5 text-brand-blue shrink-0" />
-                    <span className="text-sm sm:text-base font-bold text-slate-950 leading-snug">
+                    <HelpCircle className="w-5 h-5 text-blue-600 shrink-0" />
+                    <span className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
                       {faq.question}
                     </span>
                   </div>
-                  <div className="p-1 rounded bg-white border border-slate-100 shrink-0 text-slate-500 ">
+                  <div
+                    className={`p-1.5 rounded-xl border shrink-0 transition-all ${
+                      isOpen
+                        ? 'bg-blue-600 border-blue-600 text-white shadow-xs'
+                        : 'bg-white border-slate-200 text-slate-500'
+                    }`}
+                  >
                     {isOpen ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                   </div>
                 </button>
@@ -75,7 +85,7 @@ export default function FAQ() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25 }}
                     >
-                      <div className="px-5 pb-5 pt-1 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-150/40 bg-white/40 ">
+                      <div className="px-5 pb-5 pt-2 text-slate-600 text-xs sm:text-sm leading-relaxed border-t border-slate-100 bg-white">
                         {faq.answer}
                       </div>
                     </motion.div>

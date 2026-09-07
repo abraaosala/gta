@@ -61,25 +61,25 @@ export default function Features() {
             <motion.div
               key={item.id}
               variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0 } }}
-              className="glass-card p-6 sm:p-8 rounded-3xl hover:shadow-xl hover:border-brand-blue/20 cursor-default group shrink-0"
+              className="glass-card p-6 sm:p-8 rounded-3xl bg-white border border-slate-200/80 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-500/5 cursor-default group shrink-0"
             >
               {/* Top Row with Icon & Badge */}
               <div className="flex items-start justify-between mb-6">
-                <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 relative group-hover:scale-110 transition-all duration-350">
+                <div className="p-3.5 bg-slate-50 border border-slate-100 rounded-2xl relative group-hover:scale-110 group-hover:border-blue-200 transition-all duration-300 shadow-2xs">
                   <FeatureIcon name={item.icon} index={idx} />
                 </div>
-                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-2.5 py-1 rounded-md">
+                <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500 bg-slate-100/80 border border-slate-200/60 px-2.5 py-1 rounded-md">
                   {item.badge}
                 </span>
               </div>
 
               {/* Title & Description */}
               <div className="text-left">
-                <h3 className="text-lg font-bold font-display text-slate-950 mb-2 pb-1 relative inline-block">
+                <h3 className="text-lg font-bold font-display text-slate-900 mb-2 pb-1 relative inline-block group-hover:text-blue-600 transition-colors">
                   {item.title}
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-brand-blue group-hover:w-full transition-all duration-300" />
+                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-blue-600 group-hover:w-full transition-all duration-300" />
                 </h3>
-                <p className="text-slate-500 text-sm leading-relaxed">
+                <p className="text-slate-600 text-sm leading-relaxed">
                   {item.description}
                 </p>
               </div>
@@ -92,10 +92,10 @@ export default function Features() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="mt-16 bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-10 text-left relative overflow-hidden shadow-xl"
+          className="mt-16 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 border border-slate-800 text-white rounded-3xl p-6 sm:p-10 text-left relative overflow-hidden shadow-xl shadow-slate-950/20"
         >
           {/* Neon gradient mesh behind */}
-          <div className="absolute top-0 right-0 w-80 h-full bg-brand-cyan/10 blur-2xl -z-10" />
+          <div className="absolute top-0 right-0 w-80 h-full bg-blue-500/10 blur-2xl -z-10" />
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-8 space-y-2">
@@ -110,7 +110,7 @@ export default function Features() {
               <a
                 id="features-promo-cta"
                 href="#estimador"
-                className="w-full sm:w-auto text-center font-bold text-slate-950 bg-white hover:bg-slate-100 px-6 py-3.5 rounded-xl transition-all tracking-tight scale-100 hover:scale-[1.03] active:scale-[0.97]"
+                className="w-full sm:w-auto text-center font-bold text-slate-950 bg-white hover:bg-slate-100 px-6 py-3.5 rounded-xl transition-all tracking-tight shadow-md scale-100 hover:scale-[1.02] active:scale-[0.98]"
               >
                 Reservar Intervenção Agora
               </a>
