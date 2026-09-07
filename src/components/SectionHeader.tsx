@@ -6,8 +6,8 @@
 import type { ReactNode } from 'react';
 
 const BADGE_CLASS =
-  'text-xs uppercase font-mono font-extrabold tracking-widest text-brand-blue bg-brand-blue/5 px-3.5 py-1.5 rounded-full inline-block';
-const TITLE_CLASS = 'text-3xl sm:text-4xl font-bold font-display mt-4 tracking-tight text-slate-900';
+  'inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-mono font-bold tracking-wider uppercase text-blue-700 bg-blue-50 border border-blue-200/80 shadow-xs';
+const TITLE_CLASS = 'text-3xl sm:text-4xl lg:text-5xl font-extrabold font-display mt-4 tracking-tight text-slate-900 leading-tight';
 
 const layoutClasses = {
   center: 'text-center max-w-3xl mx-auto mb-16',
@@ -16,9 +16,9 @@ const layoutClasses = {
 } as const;
 
 const descriptionClasses = {
-  center: 'text-slate-500 mt-4 text-md',
-  left: 'text-slate-500 mt-4 text-sm leading-relaxed',
-  split: 'mt-3 text-sm text-slate-500',
+  center: 'text-slate-600 mt-4 text-base sm:text-lg leading-relaxed',
+  left: 'text-slate-600 mt-4 text-sm sm:text-base leading-relaxed',
+  split: 'mt-3 text-sm sm:text-base text-slate-600 leading-relaxed',
 } as const;
 
 type SectionHeaderAlign = keyof typeof layoutClasses;
