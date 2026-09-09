@@ -1,18 +1,23 @@
 # ─────────────────────────────────────────────────────────────
 #  Deploy do GTA-Tech (Vite SPA) para o Hostinger via SSH + rsync
 #
-#  O deploy é feito por SSH (porta 65002) com rsync, usando a
-#  chave privada que já está autorizada no servidor
+#  O deploy é feito por SSH (porta 65002) com rsync atómico,
+#  usando a chave privada que já está autorizada no servidor
 #  (~/.ssh/authorized_keys do utilizador).
+#
+#  Estratégia atómica:
+#    1. rsync do dist/ local para .dist-staging/ no servidor
+#    2. no servidor: rsync .dist-staging/ → dist/ e remover staging
+#    → o site nunca fica "a meio" da atualização.
 #
 #  Pré-requisitos (uma vez):
 #    1. Configurar os secrets no GitHub
 #       (Settings → Secrets and variables → Actions):
-#         SSH_KEY       → conteúdo da chave privada autorizada
-#                         no servidor (ex: ---BEGIN OPENSSH---)
-#         SSH_HOST      → IP/hostname do servidor (ex: 31.220.106.101)
-#         SSH_PORT      → porta SSH (Exemplo Hostinger: 65002)
-#         SSH_USERNAME  → utilizador SSH (ex: u634834160)
+#         SSH_KEY        → conteúdo da chave privada autorizada
+#                          no servidor (ex: ---BEGIN OPENSSH---)
+#         SSH_HOST       → IP/hostname do servidor (ex: 31.220.106.101)
+#         SSH_PORT       → porta SSH (Exemplo Hostinger: 65002)
+#         SSH_USER       → utilizador SSH (ex: u634834160)
 #    2. Criar uma variável no GitHub (Settings → Variables):
 #         SSH_TARGET_DIR → caminho ABSOLUTO de destino no servidor
 #                          (ex: /home/u634834160/domains/gtatech.ao/public_html/dist/)
@@ -54,19 +59,25 @@ jobs:
           test -f dist/index.html
           test -f dist/.htaccess || { echo "dist/.htaccess em falta"; exit 1; }
 
-      - name: Configurar chave SSH
-        uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-
-      - name: Adicionar servidor aos known_hosts
+      - name: Deploy via SSH (rsync atomico)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_TARGET_DIR: ${{ vars.SSH_TARGET_DIR }}
         run: |
+          set -euo pipefail
+          SITE_DIR="$(dirname "$SSH_TARGET_DIR")"
+          TARGET_NAME="$(basename "$SSH_TARGET_DIR")"
+
           mkdir -p ~/.ssh
-          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+          chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
 
-      - name: Deploy via SSH + rsync
-        run: |
-          rsync -avz --delete \
-            -e "ssh -o StrictHostKeyChecking=yes -p ${{ secrets.SSH_PORT }}" \
-            ./dist/ \
-            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ vars.SSH_TARGET_DIR }}
+          SSH_OPTS="-i $HOME/.ssh/deploy_key -p $SSH_PORT -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          REMOTE="$SSH_USER@$SSH_HOST"
+
+          rsync -a --delete -e "ssh $SSH_OPTS" ./dist/ "$REMOTE":"$SITE_DIR/.dist-staging/"
+          ssh $SSH_OPTS "$REMOTE" "cd '$SITE_DIR' && rsync -a --delete .dist-staging/ '$TARGET_NAME/' && rm -rf .dist-staging"

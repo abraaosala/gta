@@ -1,6 +1,6 @@
 # Deploy do GTA-Tech para a Hostinger via GitHub Actions
 
-Este documento explica como publicar automaticamente o site na **Hostinger** sempre que fizer *push* para a branch `main`. O deploy é feito por **SSH + rsync** e a pasta `dist` é gerada e enviada automaticamente, incluindo o ficheiro `.htaccess` que aponta as rotas para o `index.html`.
+Este documento explica como publicar automaticamente o site na **Hostinger** sempre que fizer *push* para a branch `main`. O deploy é feito por **SSH + rsync atómico** e a pasta `dist` é gerada e enviada automaticamente, incluindo o ficheiro `.htaccess` que aponta as rotas para o `index.html`.
 
 ---
 
@@ -12,8 +12,18 @@ Este documento explica como publicar automaticamente o site na **Hostinger** sem
    - faz o *type-check* (`npm run lint`);
    - gera a pasta `dist` (`npm run build`);
    - **o Vite copia `public/.htaccess` → `dist/.htaccess`** automaticamente;
-   - envia o conteúdo de `dist/` para `dist/` do domínio na Hostinger via SSH + rsync.
+   - envia o conteúdo de `dist/` para `dist/` do domínio na Hostinger via SSH + rsync **atómico** (ver abaixo).
 3. O `.htaccess` no servidor reescreve todas as rotas (`/admin`, `/login`, `/admin/services`, …) para o `index.html`, permitindo o *client-side routing* do TanStack Router.
+
+### Deploy atómico
+
+Para nunca deixar o site "a meio" de uma atualização:
+
+1. O runner envia `dist/` para uma pasta temporária `.dist-staging/` no servidor;
+2. Num segundo passo, dentro do servidor: `rsync --delete .dist-staging/ → dist/`;
+3. A pasta `.dist-staging/` é removida.
+
+Ou seja, o `dist/` publicado só é substituído quando os ficheiros já estão todos no servidor.
 
 ---
 
@@ -46,7 +56,7 @@ Em **GitHub → Settings → Secrets and variables → Actions → New repositor
 | `SSH_KEY` | Conteúdo completo da chave privada autorizada no servidor (ex: `-----BEGIN OPENSSH PRIVATE KEY-----`). |
 | `SSH_HOST` | IP/hostname do servidor — ex: `31.220.106.101` (sem prefixo de protocolo). |
 | `SSH_PORT` | Porta SSH. Exemplo de hospedagem Hostinger: **65002**. |
-| `SSH_USERNAME` | Utilizador SSH — ex: `u634834160`. |
+| `SSH_USER` | Utilizador SSH — ex: `u634834160`. |
 
 ### 3. Variável no GitHub
 
@@ -84,9 +94,11 @@ Para confirmar que a chave e o destino estão corretos **antes** de depender do 
 # Conectar e ver a estrutura do domínio
 ssh -p 65002 u634834160@31.220.106.101 "ls -la domains/gtatech.ao/public_html/dist"
 
-# Enviar os ficheiros gerados
-rsync -avz --delete -e "ssh -p 65002" ./dist/ \
-  u634834160@31.220.106.101:/home/u634834160/domains/gtatech.ao/public_html/dist/
+# Enviar os ficheiros gerados (mesmo padrão atómico do workflow)
+rsync -a --delete -e "ssh -p 65002" ./dist/ \
+  u634834160@31.220.106.101:/home/u634834160/domains/gtatech.ao/public_html/.dist-staging/
+ssh -p 65002 u634834160@31.220.106.101 \
+  "cd /home/u634834160/domains/gtatech.ao/public_html && rsync -a --delete .dist-staging/ dist/ && rm -rf .dist-staging"
 ```
 
 ---
@@ -107,8 +119,8 @@ ls -la dist/.htaccess   # deve existir
 ## Notas e resolução de problemas
 
 - **`ssh: connect to host port 65002: Connection timed out`** — a porta SSH pode estar bloqueada para os IPs do GitHub (Azure) no firewall. Confirmar com o suporte da Hostinger se o acesso SSH externo está permitido.
-- **`Permission denied (publickey)`** — a chave privada no secret `SSH_KEY` não corresponde a nenhuma chave pública no `authorized_keys` do servidor. Verifique também que não precisa de passphrase (se tiver, gere uma chave sem passphrase para CI ou configure `SSH_KEY_PASS`).
-- **`Host key verification failed`** — foram adicionados os `known_hosts` automaticamente no workflow; se o servidor mudar de chave, apague a entrada antiga.
+- **`Permission denied (publickey)`** — a chave privada no secret `SSH_KEY` não corresponde a nenhuma chave pública no `authorized_keys` do servidor. Verifique também que não precisa de passphrase (se tiver, gere uma chave sem passphrase para CI).
+- **`Host key verification failed`** — o workflow usa `StrictHostKeyChecking=no` com `UserKnownHostsFile=/dev/null` (não valida a chave do host, para não falhar em CI a cada mudança de infra). O acesso ao servidor é por chave, pelo que o risco é mitigado.
 - **O `.htaccess` não aparece na `dist`?** — Certifique-se de que está em `public/.htaccess`. O Vite copia tudo de `public/` para `dist/` no build.
 - **`rsync: command not found` no runner?** — o `ubuntu-latest` já traz `rsync` instalado.
 - **Deploy parece "antigo"?** — o rsync usa `--delete`, que remove ficheiros órfãos do destino. Verifique o cache do browser (Ctrl+Shift+R).
@@ -126,7 +138,7 @@ push → main
 npm ci → lint → build (gera dist/ + dist/.htaccess)
    │
    ▼
-Deploy via SSH + rsync → dist/ do domínio
+Deploy via SSH + rsync atómico → dist/ do domínio
    │
    ▼
 .htaccess reescreve rotas → index.html
