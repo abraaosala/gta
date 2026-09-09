@@ -1,20 +1,21 @@
 # ─────────────────────────────────────────────────────────────
-#  Deploy do GTA-Tech (Vite SPA) para o Hostinger via FTP
+#  Deploy do GTA-Tech (Vite SPA) para o Hostinger via SSH + rsync
 #
-#  O SSH dos runners do GitHub é bloqueado pelo firewall da
-#  Hostinger em hospedagem partilhada (Connection timed out),
-#  por isso o deploy é feito por FTPS (porta 21), que não é
-#  bloqueado.
+#  O deploy é feito por SSH (porta 65002) com rsync, usando a
+#  chave privada que já está autorizada no servidor
+#  (~/.ssh/authorized_keys do utilizador).
 #
 #  Pré-requisitos (uma vez):
 #    1. Configurar os secrets no GitHub
 #       (Settings → Secrets and variables → Actions):
-#         FTP_HOST  → servidor FTP, SOZINHO, sem prefixo
-#                     (ex: 31.220.106.101  — SEM "ftp://")
-#         FTP_USER  → utilizador FTP
-#         FTP_PASS  → palavra-passe FTP
-#    2. Criar/utilizar uma conta FTP em hPanel → Files → FTP Accounts.
-#    3. O server-dir é dist/ (o FTP root na Hostinger já é public_html/).
+#         SSH_KEY       → conteúdo da chave privada autorizada
+#                         no servidor (ex: ---BEGIN OPENSSH---)
+#         SSH_HOST      → IP/hostname do servidor (ex: 31.220.106.101)
+#         SSH_PORT      → porta SSH (Exemplo Hostinger: 65002)
+#         SSH_USERNAME  → utilizador SSH (ex: u634834160)
+#    2. Criar uma variável no GitHub (Settings → Variables):
+#         SSH_TARGET_DIR → caminho ABSOLUTO de destino no servidor
+#                          (ex: /home/u634834160/domains/gtatech.ao/public_html/dist/)
 # ─────────────────────────────────────────────────────────────
 name: Deploy Hostinger
 
@@ -53,17 +54,19 @@ jobs:
           test -f dist/index.html
           test -f dist/.htaccess || { echo "dist/.htaccess em falta"; exit 1; }
 
-      - name: Deploy via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      - name: Configurar chave SSH
+        uses: webfactory/ssh-agent@v0.9.0
         with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASS }}
-          protocol: ftps
-          port: 21
-          timeout: 90000
-          local-dir: ./dist/
-          server-dir: dist/
-          dangerous-clean-slate: true
-          exclude: |
-            **/.DS_Store
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Adicionar servidor aos known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Deploy via SSH + rsync
+        run: |
+          rsync -avz --delete \
+            -e "ssh -o StrictHostKeyChecking=yes -p ${{ secrets.SSH_PORT }}" \
+            ./dist/ \
+            ${{ secrets.SSH_USERNAME }}@${{ secrets.SSH_HOST }}:${{ vars.SSH_TARGET_DIR }}

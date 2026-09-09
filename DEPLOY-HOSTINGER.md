@@ -1,8 +1,6 @@
-# Deploy do GTA-Tech para o Hostinger via GitHub Actions
+# Deploy do GTA-Tech para a Hostinger via GitHub Actions
 
-Este documento explica como publicar automaticamente o site na **Hostinger** sempre que fizer *push* para a branch `main`. O deploy é feito por **FTP/FTPS** e a pasta `dist` é gerada e enviada automaticamente, incluindo o ficheiro `.htaccess` que aponta as rotas para o `index.html`.
-
-> **Porquê FTP e não SSH?** Em hospedagem partilhada, o firewall da Hostinger bloqueia os IPs dos runners do GitHub (Azure) para acesso SSH — daí o `Connection timed out`. O FTP/FTPS (porta 21) **não é bloqueado**, por isso usa-se este método.
+Este documento explica como publicar automaticamente o site na **Hostinger** sempre que fizer *push* para a branch `main`. O deploy é feito por **SSH + rsync** e a pasta `dist` é gerada e enviada automaticamente, incluindo o ficheiro `.htaccess` que aponta as rotas para o `index.html`.
 
 ---
 
@@ -14,7 +12,7 @@ Este documento explica como publicar automaticamente o site na **Hostinger** sem
    - faz o *type-check* (`npm run lint`);
    - gera a pasta `dist` (`npm run build`);
    - **o Vite copia `public/.htaccess` → `dist/.htaccess`** automaticamente;
-   - envia o conteúdo de `dist/` para `public_html/dist/` da Hostinger via FTPS.
+   - envia o conteúdo de `dist/` para `dist/` do domínio na Hostinger via SSH + rsync.
 3. O `.htaccess` no servidor reescreve todas as rotas (`/admin`, `/login`, `/admin/services`, …) para o `index.html`, permitindo o *client-side routing* do TanStack Router.
 
 ---
@@ -24,7 +22,7 @@ Este documento explica como publicar automaticamente o site na **Hostinger** sem
 | Ficheiro | Função |
 |----------|--------|
 | `public/.htaccess` | Regras Apache: reescrita SPA para `index.html`, cache de assets, compressão e cabeçalhos de segurança. Copiado para `dist/` em cada build. |
-| `.github/workflows/deploy-hostinger.yml` | Workflow que constrói e faz o deploy por FTP. |
+| `.github/workflows/deploy-hostinger.yml` | Workflow que constrói e faz o deploy por SSH + rsync. |
 | `DEPLOY-HOSTINGER.md` | Este documento. |
 
 > O `public/.htaccess` é a **fonte única** — o Vite copia-o para `dist/` em cada build, por isso não precisa de o gerar manualmente nem de o colocar no servidor à mão.
@@ -33,10 +31,11 @@ Este documento explica como publicar automaticamente o site na **Hostinger** sem
 
 ## Configuração única (uma vez)
 
-### 1. Criar uma conta FTP
+### 1. Preparar a chave SSH no servidor
 
-1. No hPanel da Hostinger: **Files → FTP Accounts**.
-2. Crie (ou utilize) uma conta FTP e anote o **utilizador** e a **palavra-passe**.
+1. Gere (ou reutilize) um par de chaves.
+2. Adicione a **chave pública** ao ficheiro `~/.ssh/authorized_keys` do utilizador SSH da Hostinger.
+3. Anote o **conteúdo da chave privada** — vai ser guardado como secret no GitHub.
 
 ### 2. Secrets no GitHub
 
@@ -44,11 +43,18 @@ Em **GitHub → Settings → Secrets and variables → Actions → New repositor
 
 | Secret | Valor |
 |--------|-------|
-| `FTP_HOST` | Servidor FTP. **Importante: apenas o endereço, SEM prefixo** — ex: `31.220.106.101` (e **não** `ftp://31.220.106.101`). |
-| `FTP_USER` | Utilizador FTP (da conta criada acima). |
-| `FTP_PASS` | Palavra-passe FTP. |
+| `SSH_KEY` | Conteúdo completo da chave privada autorizada no servidor (ex: `-----BEGIN OPENSSH PRIVATE KEY-----`). |
+| `SSH_HOST` | IP/hostname do servidor — ex: `31.220.106.101` (sem prefixo de protocolo). |
+| `SSH_PORT` | Porta SSH. Exemplo de hospedagem Hostinger: **65002**. |
+| `SSH_USERNAME` | Utilizador SSH — ex: `u634834160`. |
 
-> O `FTP_HOST` deve conter **só o IP/hostname**. Se colocar o prefixo `ftp://`, a resolução de DNS falha com `getaddrinfo ENOTFOUND`.
+### 3. Variável no GitHub
+
+Na mesma página, em **Variables**, crie:
+
+| Variable | Valor |
+|----------|-------|
+| `SSH_TARGET_DIR` | Caminho **absoluto** de destino no servidor — ex: `/home/u634834160/domains/gtatech.ao/public_html/dist/`. |
 
 ---
 
@@ -70,6 +76,21 @@ gh run watch
 
 ---
 
+## Testar a conexão SSH localmente
+
+Para confirmar que a chave e o destino estão corretos **antes** de depender do GitHub Actions:
+
+```bash
+# Conectar e ver a estrutura do domínio
+ssh -p 65002 u634834160@31.220.106.101 "ls -la domains/gtatech.ao/public_html/dist"
+
+# Enviar os ficheiros gerados
+rsync -avz --delete -e "ssh -p 65002" ./dist/ \
+  u634834160@31.220.106.101:/home/u634834160/domains/gtatech.ao/public_html/dist/
+```
+
+---
+
 ## Verificar a implementação local
 
 Para confirmar que tudo gera como esperado **antes** de depender do GitHub Actions:
@@ -81,20 +102,16 @@ npm run build       # gera dist/
 ls -la dist/.htaccess   # deve existir
 ```
 
-Se quiser ver o `.htaccess` final na `dist`:
-
-```bash
-cat dist/.htaccess
-```
-
 ---
 
 ## Notas e resolução de problemas
 
+- **`ssh: connect to host port 65002: Connection timed out`** — a porta SSH pode estar bloqueada para os IPs do GitHub (Azure) no firewall. Confirmar com o suporte da Hostinger se o acesso SSH externo está permitido.
+- **`Permission denied (publickey)`** — a chave privada no secret `SSH_KEY` não corresponde a nenhuma chave pública no `authorized_keys` do servidor. Verifique também que não precisa de passphrase (se tiver, gere uma chave sem passphrase para CI ou configure `SSH_KEY_PASS`).
+- **`Host key verification failed`** — foram adicionados os `known_hosts` automaticamente no workflow; se o servidor mudar de chave, apague a entrada antiga.
 - **O `.htaccess` não aparece na `dist`?** — Certifique-se de que está em `public/.htaccess`. O Vite copia tudo de `public/` para `dist/` no build.
-- **`getaddrinfo ENOTFOUND` no passo FTP?** — O valor do secret `FTP_HOST` não resolve. Confirme que está **apenas** o endereço (ex: `31.220.106.101`), **sem** `ftp://` nem espaços.
-- **`Failed to connect... server only supports SFTP`?** — O plano atual usa `protocol: ftps`, porta 21. Se a Hostinger exigir FTPS explicito ou SFTP, ajuste `protocol` e `port` na ação.
-- **Deploy parece "antigo"?** — Se `dangerous-clean-slate: false`, ficheiros órfãos ficam; verifique o cache do browser (Ctrl+Shift+R) e, em caso de problema, ative `dangerous-clean-slate: true`.
+- **`rsync: command not found` no runner?** — o `ubuntu-latest` já traz `rsync` instalado.
+- **Deploy parece "antigo"?** — o rsync usa `--delete`, que remove ficheiros órfãos do destino. Verifique o cache do browser (Ctrl+Shift+R).
 - **Quer ativar em branches diferentes?** — Altere `branches: [main]` no workflow.
 - **Se o site estiver numa subpasta** (ex: `https://dominio/gta/`) — é preciso ajustar o `RewriteBase` no `public/.htaccess` e possivelmente a `base` do Vite; o cenário suportado por estes ficheiros é pasta raiz do domínio.
 
@@ -109,7 +126,7 @@ push → main
 npm ci → lint → build (gera dist/ + dist/.htaccess)
    │
    ▼
-Deploy via FTPS → public_html/dist/
+Deploy via SSH + rsync → dist/ do domínio
    │
    ▼
 .htaccess reescreve rotas → index.html
